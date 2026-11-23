@@ -4,6 +4,8 @@ Version en cours : 0.9.1. Seule liste de suivi du projet. Les idées s'ajoutent 
 
 ## À faire
 
+ajouter le lien vers le code source vers l'application originale et vers Guillaume Meunier ainsi que la version de l'application.
+
 ### Rendu visuel proche de l'application officielle C3S
 Référence : capture de l'application Copernicus (Global Temperature Trend Monitor).
 
