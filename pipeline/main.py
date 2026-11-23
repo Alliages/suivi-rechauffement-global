@@ -82,7 +82,13 @@ def build_site() -> None:
     """Copie la page et les données dans _site/ (artefact GitHub Pages)."""
     if C.SITE_OUT_DIR.exists():
         shutil.rmtree(C.SITE_OUT_DIR)
-    shutil.copytree(C.SITE_SRC_DIR, C.SITE_OUT_DIR)
+    C.SITE_OUT_DIR.mkdir(parents=True)
+    for nom in C.SITE_SRC_FILES:               # index.html et vendor/ (racine du dépôt)
+        src = C.ROOT_DIR / nom
+        if src.is_dir():
+            shutil.copytree(src, C.SITE_OUT_DIR / nom)
+        else:
+            shutil.copy2(src, C.SITE_OUT_DIR / nom)
     shutil.copytree(C.DATA_DIR, C.SITE_OUT_DIR / "data")
     print(f"Site assemblé : {C.SITE_OUT_DIR}")
 

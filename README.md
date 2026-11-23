@@ -28,7 +28,7 @@ pipeline/config.py    toutes les constantes (sources, méthode, contrôles)
 pipeline/compute.py   moyennes mensuelles, anomalies, tendances, contrôles qualité
 pipeline/main.py      téléchargement → calculs → data/ → _site/
 pipeline/render.py    images PNG/SVG/JPG/PDF et GIF (matplotlib)
-site/index.html       page (Plotly.js embarqué dans site/vendor/)
+index.html            page (Plotly.js embarqué dans vendor/)
 data/                 données calculées, versionnées à chaque mise à jour
 scripts/export.ps1    export d'images / GIF depuis Windows
 tests/                tests de la méthode + données synthétiques
@@ -108,4 +108,4 @@ Détail dans [ROADMAP.md](ROADMAP.md).
 - ERA5 : Hersbach et al. (2020), *Q. J. R. Meteorol. Soc.*, doi:10.1002/qj.3803. Copernicus Climate Change Service / ECMWF.
 - Méthode : C3S Global Temperature Trend Monitor (notebook « source code »).
 - Projections : GIEC, rapport spécial 1,5 °C (SR15), 2018.
-- Plotly.js (licence MIT), embarqué dans `site/vendor/`.
+- Plotly.js (licence MIT), embarqué dans `vendor/`.
