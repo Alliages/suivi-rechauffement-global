@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivi du réchauffement mondial · seuil de 1,5 °C</title>
+<meta name="description" content="Suivi mensuel du réchauffement mondial (ERA5, Copernicus) et estimation de la date d'atteinte de +1,5 °C par extrapolation de la tendance sur 30 ans.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23941333'/%3E%3C/svg%3E">
+<script src="vendor/plotly-basic.min.js"></script>
+<style>
+  :root {
+    --fg: #1d1d1f; --muted: #5f6368; --line: #e3e3e3; --bg: #fff; --card: #f7f6f4;
+    --accent: #941333; --series: #e8762c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         color: var(--fg); background: var(--bg); }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
+  header { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0; }
+  .lang button { border: 1px solid var(--line); background: #fff; padding: 4px 10px;
+                 cursor: pointer; font: inherit; border-radius: 6px; }
+  .lang button[aria-pressed="true"] { background: var(--fg); color: #fff; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+           gap: 12px; margin: 20px 0; }
+  .card { background: var(--card); border-radius: 10px; padding: 14px 16px; }
+  .card .k { color: var(--muted); font-size: .85rem; }
+  .card .v { font-size: 1.6rem; font-weight: 700; }
+  .card .v.accent { color: var(--accent); }
+  #chart { width: 100%; height: 560px; }
+  .slider { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 8px 0 4px; }
+  .slider input[type=range] { flex: 1; min-width: 240px; accent-color: var(--accent); }
+  .slider output { font-weight: 700; min-width: 9em; }
+  .slider label { color: var(--muted); font-size: .9rem; }
+  section { margin-top: 32px; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; }
+  .exports { display: flex; flex-wrap: wrap; gap: 8px; }
+  .exports button, .exports a { border: 1px solid var(--line); background: #fff; color: var(--fg);
+         padding: 7px 12px; border-radius: 8px; cursor: pointer; font: inherit;
+         text-decoration: none; font-size: .9rem; }
+  .exports button:hover, .exports a:hover { border-color: var(--fg); }
+  .exports .group { color: var(--muted); font-size: .85rem; width: 100%; margin-top: 6px; }
+  .method { color: #333; max-width: 850px; }
+  .method li { margin-bottom: 4px; }
+  footer { margin-top: 40px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line);
+           padding-top: 14px; }
+  .prelim { color: var(--muted); font-size: .8rem; font-weight: 400; }
+  @media (max-width: 700px) { #chart { height: 420px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1 data-i18n="title"></h1>
+      <p class="sub" id="updated"></p>
+    </div>
+    <div class="lang">
+      <button data-lang="fr" aria-pressed="true">FR</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <div class="cards">
+    <div class="card"><div class="k" id="k-last"></div><div class="v" id="v-last"></div></div>
+    <div class="card"><div class="k" data-i18n="cardWarming"></div><div class="v" id="v-warming"></div></div>
+    <div class="card"><div class="k" data-i18n="cardCrossing"></div><div class="v accent" id="v-crossing"></div></div>
+  </div>
+
+  <div id="chart"></div>
+
+  <div class="slider">
+    <span data-i18n="extrapolateFrom"></span>
+    <input type="range" id="step" min="0" max="0" value="0" aria-labelledby="step-out">
+    <output id="step-out"></output>
+    <label><input type="checkbox" id="all-months"> <span data-i18n="allMonths"></span></label>
+  </div>
+
+  <section>
+    <h2 data-i18n="exportsTitle"></h2>
+    <div class="exports" id="exports">
+      <span class="group" data-i18n="exportsChart"></span>
+      <button data-export="png">PNG</button>
+      <button data-export="svg">SVG</button>
+      <span class="group" data-i18n="exportsData"></span>
+      <a href="data/era5_global_monthly.csv" download data-i18n="csvMonthly"></a>
+      <a href="data/trends.csv" download data-i18n="csvTrends"></a>
+      <a href="data/ipcc_sr15.csv" download data-i18n="csvIpcc"></a>
+      <a href="data/series.json" download>JSON</a>
+      <span class="group" data-i18n="exportsAnim" id="anim-group" hidden></span>
+    </div>
+  </section>
+
+  <section class="method">
+    <h2 data-i18n="methodTitle"></h2>
+    <ul id="method"></ul>
+  </section>
+
+  <footer id="footer"></footer>
+</main>
+
+<script>
+/* ======================================================================
+   Paramètres
+   ====================================================================== */
+const DATA_URL = "data/series.json";
+const MANIFEST_URL = "exports/manifest.json";
+const EXPORT_SIZE = { width: 1280, height: 720 };
+const COLORS = {
+  ipcc: "rgba(247,210,184,0.9)", series: "#f2b48a", window: "#c4471b",
+  trend: "#941333", target: "#333", grid: "#9a9a9a",
+};
+const MONTHS = {
+  fr: ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."],
+  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+};
+const I18N = {
+  fr: {
+    title: "Suivi du réchauffement mondial et du seuil de 1,5 °C",
+    updated: "Données jusqu'à {m} · mise à jour le {d}",
+    cardLast: "Anomalie de {m}", cardWarming: "Réchauffement estimé (tendance 30 ans)",
+    cardCrossing: "1,5 °C atteint vers (si la tendance se poursuit)",
+    extrapolateFrom: "Extrapoler depuis :", allMonths: "tous les mois",
+    exportsTitle: "Exports", exportsChart: "Graphique (vue actuelle)", exportsData: "Données",
+    exportsAnim: "Animations et images (générées chaque mois)",
+    csvMonthly: "Série mensuelle (CSV)", csvTrends: "Tendances 30 ans (CSV)", csvIpcc: "Enveloppe GIEC (CSV)",
+    gifCourbe: "GIF · courbe", gifExtra: "GIF · extrapolation",
+    zipCourbe: "Images · courbe (ZIP)", zipExtra: "Images · extrapolation (ZIP)",
+    staticPng: "Graphique PNG", staticSvg: "Graphique SVG",
+    yTitle: "Anomalie vs 1850-1900 (°C)",
+    ipcc: "Projections GIEC (SR15)", likely: "Fourchette GIEC 1,5 °C (2030-2052)",
+    series: "Anomalie mensuelle ERA5", window: "Fenêtre de 30 ans", trend: "Tendance linéaire 30 ans",
+    crossing: "Atteinte de 1,5 °C", prelim: "provisoire", never: "non atteint",
+    methodTitle: "Méthode",
+    method: [
+      "Température de l'air à 2 m, moyenne mondiale quotidienne ERA5 publiée par Copernicus Climate Pulse, agrégée en moyennes mensuelles (mois complets uniquement).",
+      "Anomalie par rapport à 1991-2020, convertie en anomalie par rapport à 1850-1900 en ajoutant un écart mensuel fixe (0,80 à 0,96 °C) issu du bulletin climatique C3S.",
+      "Tendance : régression linéaire sur 30 ans (361 mois). La date d'atteinte de 1,5 °C est l'extrapolation de cette droite ; ce n'est pas une prévision.",
+      "Les derniers mois sont provisoires (ERA5T) et peuvent être légèrement révisés.",
+      "Méthode reprise du « Global Temperature Trend Monitor » de Copernicus C3S, réimplémentée ici pour une mise à jour automatique mensuelle.",
+    ],
+    footer: "Données : Copernicus Climate Change Service (C3S) / ECMWF, ERA5. Projections : GIEC SR15. Outil non officiel, ni produit ni approuvé par Copernicus.",
+  },
+  en: {
+    title: "Tracking global warming and the 1.5 °C threshold",
+    updated: "Data up to {m} · updated {d}",
+    cardLast: "{m} anomaly", cardWarming: "Estimated warming (30-year trend)",
+    cardCrossing: "1.5 °C reached around (if the trend continues)",
+    extrapolateFrom: "Extrapolate from:", allMonths: "every month",
+    exportsTitle: "Exports", exportsChart: "Chart (current view)", exportsData: "Data",
+    exportsAnim: "Animations and images (generated monthly)",
+    csvMonthly: "Monthly series (CSV)", csvTrends: "30-year trends (CSV)", csvIpcc: "IPCC envelope (CSV)",
+    gifCourbe: "GIF · curve", gifExtra: "GIF · extrapolation",
+    zipCourbe: "Images · curve (ZIP)", zipExtra: "Images · extrapolation (ZIP)",
+    staticPng: "Chart PNG", staticSvg: "Chart SVG",
+    yTitle: "Anomaly vs 1850-1900 (°C)",
+    ipcc: "IPCC projections (SR15)", likely: "IPCC 1.5 °C likely range (2030-2052)",
+    series: "ERA5 monthly anomaly", window: "30-year window", trend: "30-year linear trend",
+    crossing: "1.5 °C reached", prelim: "preliminary", never: "not reached",
+    methodTitle: "Method",
+    method: [
+      "2 m air temperature, ERA5 daily global mean published by Copernicus Climate Pulse, aggregated to monthly means (complete months only).",
+      "Anomaly relative to 1991-2020, converted to 1850-1900 by adding a fixed monthly offset (0.80 to 0.96 °C) from the C3S Climate Bulletin.",
+      "Trend: 30-year linear regression (361 months). The 1.5 °C date extrapolates this line; it is not a forecast.",
+      "The most recent months are preliminary (ERA5T) and may be slightly revised.",
+      "Method taken from the Copernicus C3S “Global Temperature Trend Monitor”, reimplemented here for automatic monthly updates.",
+    ],
+    footer: "Data: Copernicus Climate Change Service (C3S) / ECMWF, ERA5. Projections: IPCC SR15. Unofficial tool, not produced or endorsed by Copernicus.",
+  },
+};
+
+/* ======================================================================
+   État
+   ====================================================================== */
+let DATA = null, MANIFEST = null, lang = "fr", steps = [];
+const $ = (id) => document.getElementById(id);
+const t = (k) => I18N[lang][k];
+
+/* ---------- Formatage ---------- */
+const toDate = (m) => m + "-15";                       // AAAA-MM → 15 du mois
+const fmtMonth = (m) => { const [y, mo] = m.split("-"); return `${MONTHS[lang][+mo - 1]} ${y}`; };
+const fmtNum = (x, signed = false) =>
+  (signed && x >= 0 ? "+" : "") + x.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function addMonths(m, k) {                              // 'AAAA-MM' + k mois (réel) → date ISO
+  const [y, mo] = m.split("-").map(Number);
+  const d = new Date(Date.UTC(y, mo - 1, 15));
+  d.setUTCDate(d.getUTCDate() + Math.round(k * 30.4375));
+  return d.toISOString().slice(0, 10);
+}
+
+/* ======================================================================
+   Graphique
+   ====================================================================== */
+function trendRow(i) {
+  const tr = DATA.trends;
+  return Object.fromEntries(Object.keys(tr).map((k) => [k, tr[k][i]]));
+}
+
+function trendTraces(row) {
+  const mon = DATA.monthly, cfg = DATA.config;
+  const i0 = mon.month.indexOf(row.window_start), i1 = mon.month.indexOf(row.window_end);
+  const m = row.slope_per_decade / 120, c = row.intercept;
+  const kEnd = Math.max(m > 0 ? (cfg.target - c) / m : 0, i1 - i0);
+  return {
+    window: { x: mon.month.slice(i0, i1 + 1).map(toDate), y: mon.anomaly_preindustrial.slice(i0, i1 + 1) },
+    trend: { x: [toDate(row.window_start), addMonths(row.window_start, kEnd)], y: [c, c + m * kEnd] },
+    cross: row.crossing_1_5 ? { x: [toDate(row.crossing_1_5)], y: [cfg.target] } : { x: [], y: [] },
+  };
+}
+
+function layout() {
+  const cfg = DATA.config;
+  const axis = { showline: true, linewidth: 2, linecolor: "#000", ticks: "outside", tickwidth: 1.5,
+                 tickfont: { size: 12 }, zeroline: false };
+  // Flèches au bout des axes
+  const arrow = (x, y, ax, ay) => ({ x, y, xref: "paper", yref: "paper", ax, ay, axref: "pixel",
+    ayref: "pixel", showarrow: true, arrowhead: 2, arrowsize: 1.2, arrowwidth: 2, text: "" });
+  return {
+    margin: { l: 70, r: 20, t: 20, b: 50 },
+    font: { family: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", color: "#1d1d1f" },
+    xaxis: { ...axis, type: "date", range: cfg.x_range, showgrid: false, dtick: "M120", tickformat: "%Y" },
+    yaxis: { ...axis, range: cfg.y_range, dtick: 0.5, tickformat: ".1f", showgrid: true, griddash: "dot", gridcolor: COLORS.grid,
+             title: { text: `<b>${t("yTitle")}</b>` }, separatethousands: false },
+    legend: { x: 1.02, y: 1, xanchor: "left", yanchor: "top", font: { size: 12 }, traceorder: "normal" },
+    shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: cfg.target, y1: cfg.target,
+               line: { color: COLORS.target, width: 1, dash: "dash" } }],
+    annotations: [arrow(1, 0, -12, 0), arrow(0, 1, 0, 12)],
+    separators: lang === "fr" ? ", " : ".,",
+    hovermode: "closest", plot_bgcolor: "#fff", paper_bgcolor: "#fff",
+  };
+}
+
+function draw() {
+  const mon = DATA.monthly, ipcc = DATA.ipcc, cfg = DATA.config;
+  const row = trendRow(steps[$("step").value]);
+  const tt = trendTraces(row);
+  const yrs = ipcc.year.map((y) => `${y}-01-01`);
+  const traces = [
+    { x: yrs, y: ipcc.min_t, mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false },
+    { x: yrs, y: ipcc.max_t, mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: COLORS.ipcc,
+      name: t("ipcc"), hoverinfo: "skip" },
+    { x: cfg.likely_range, y: [cfg.target, cfg.target], mode: "lines", name: t("likely"),
+      line: { color: COLORS.target, width: 6 }, hoverinfo: "skip" },
+    { x: mon.month.map(toDate), y: mon.anomaly_preindustrial, mode: "lines", name: t("series"),
+      line: { color: COLORS.series, width: 1.2 },
+      customdata: mon.month.map((m, i) => [fmtMonth(m), mon.status[i] === "preliminary" ? ` (${t("prelim")})` : ""]),
+      hovertemplate: "%{customdata[0]} : %{y:+.2f} °C%{customdata[1]}<extra></extra>" },
+    { ...tt.window, mode: "lines", name: t("window"), line: { color: COLORS.window, width: 1.4 }, hoverinfo: "skip" },
+    { ...tt.trend, mode: "lines", name: t("trend"), line: { color: COLORS.trend, width: 3 }, hoverinfo: "skip" },
+    { ...tt.cross, mode: "markers", name: t("crossing"),
+      marker: { size: 13, color: "#fff", line: { color: COLORS.trend, width: 3 } },
+      hovertemplate: `${t("crossing")} : %{x|%m/%Y}<extra></extra>` },
+  ];
+  Plotly.react("chart", traces, layout(), { responsive: true, displaylogo: false,
+    modeBarButtonsToRemove: ["select2d", "lasso2d"],
+    toImageButtonOptions: { ...EXPORT_SIZE, filename: fileStem() } });
+  updateCards(row);
+}
+
+function updateTrend() {
+  const row = trendRow(steps[$("step").value]);
+  const tt = trendTraces(row);
+  Plotly.restyle("chart", { x: [tt.window.x, tt.trend.x, tt.cross.x], y: [tt.window.y, tt.trend.y, tt.cross.y] }, [4, 5, 6]);
+  updateCards(row);
+}
+
+/* ======================================================================
+   Textes, cartes, curseur
+   ====================================================================== */
+function updateCards(row) {
+  const mon = DATA.monthly, n = mon.month.length - 1;
+  $("step-out").textContent = /^\d{4}$/.test(row.step_label) && !$("all-months").checked
+    ? row.step_label : fmtMonth(row.window_end);
+  $("k-last").textContent = t("cardLast").replace("{m}", fmtMonth(mon.month[n]));
+  $("v-last").innerHTML = `${fmtNum(mon.anomaly_preindustrial[n], true)} °C` +
+    (mon.status[n] === "preliminary" ? ` <span class="prelim">${t("prelim")}</span>` : "");
+  $("v-warming").textContent = `${fmtNum(row.warming_at_end)} °C`;
+  $("v-crossing").textContent = row.crossing_1_5 ? fmtMonth(row.crossing_1_5) : t("never");
+}
+
+function buildSteps() {
+  const tr = DATA.trends, all = $("all-months").checked;
+  steps = tr.window_end.map((_, i) => i).filter((i) => all || tr.is_slider_step[i]);
+  const s = $("step");
+  s.max = steps.length - 1;
+  s.value = steps.length - 1;                 // position initiale : dernier mois
+}
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  $("method").innerHTML = t("method").map((li) => `<li>${li}</li>`).join("");
+  $("footer").textContent = t("footer");
+  const meta = DATA.meta;
+  $("updated").textContent = t("updated").replace("{m}", fmtMonth(meta.last_month))
+    .replace("{d}", new Date(meta.generated_at).toLocaleDateString(lang));
+  document.title = t("title");
+  renderManifest();
+  draw();
+}
+
+/* ======================================================================
+   Exports
+   ====================================================================== */
+function fileStem() {
+  const row = trendRow(steps[$("step").value]);
+  return `rechauffement_1-5C_extrapolation-${row.window_end}_${lang}`;
+}
+
+function renderManifest() {
+  const box = $("exports");
+  box.querySelectorAll("[data-manifest]").forEach((el) => el.remove());
+  if (!MANIFEST) return;
+  $("anim-group").hidden = false;
+  const items = [
+    ["courbe_gif", "gifCourbe"], ["extrapolation_gif", "gifExtra"],
+    ["courbe_zip", "zipCourbe"], ["extrapolation_zip", "zipExtra"],
+    [`static_${lang}_png`, "staticPng"], [`static_${lang}_svg`, "staticSvg"],
+  ];
+  for (const [key, label] of items) {
+    if (!MANIFEST[key]) continue;
+    const a = document.createElement("a");
+    a.href = `exports/${MANIFEST[key]}`; a.download = ""; a.textContent = t(label);
+    a.dataset.manifest = "1";
+    box.appendChild(a);
+  }
+}
+
+$("exports").addEventListener("click", (e) => {
+  const fmt = e.target.dataset && e.target.dataset.export;
+  if (fmt) Plotly.downloadImage("chart", { format: fmt, ...EXPORT_SIZE, filename: fileStem() });
+});
+
+/* ======================================================================
+   Démarrage
+   ====================================================================== */
+$("step").addEventListener("input", updateTrend);
+$("all-months").addEventListener("change", () => { buildSteps(); updateTrend(); });
+document.querySelectorAll(".lang button").forEach((b) =>
+  b.addEventListener("click", () => { lang = b.dataset.lang; applyLang(); }));
+
+(async function init() {
+  DATA = await (await fetch(DATA_URL, { cache: "no-cache" })).json();
+  try { MANIFEST = await (await fetch(MANIFEST_URL, { cache: "no-cache" })).json(); } catch (_) { MANIFEST = null; }
+  if (navigator.language && !navigator.language.startsWith("fr")) lang = "en";
+  buildSteps();
+  applyLang();
+})();
+</script>
+</body>
+</html>
