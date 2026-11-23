@@ -1,0 +1,24 @@
+{
+  "last_month": "2026-10",
+  "last_anomaly": 1.754,
+  "last_status": "final",
+  "latest_warming": 1.446,
+  "latest_crossing": "2028-10",
+  "generated_at": "2026-11-23T01:52Z",
+  "source": "https://sites.ecmwf.int/data/climatepulse/data/series/era5_daily_series_2t_global.csv",
+  "monthly_offsets": [
+    0.96,
+    0.96,
+    0.95,
+    0.91,
+    0.87,
+    0.83,
+    0.8,
+    0.8,
+    0.81,
+    0.85,
+    0.89,
+    0.93
+  ],
+  "trend_years": 30
+}
