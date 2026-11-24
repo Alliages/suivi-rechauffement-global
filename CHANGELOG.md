@@ -10,12 +10,16 @@ Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9
   - date de mise à jour déplacée en haut à droite, sous les boutons FR/EN ;
   - légende du graphique centrée sous le tracé ; exports resserrés (≈ un tiers de largeur) ; pied de page centré ; responsive mobile ajusté (en-tête empilé, valeurs réduites).
 
+=======
+
 ## 0.9.4 — 2026-11-24
 
 - Graphique : zoom initial de l'axe X réduit à 1950 → 2055 (l'enveloppe GIEC reste complète en interne, seule la vue initiale change ; zoom/pan restent possibles).
 - Encarts de dates (mois de départ orange, mois d'atteinte rouge) placés juste sous la ligne 0 °C de l'axe Y, dans le graphique.
 - Curseur : le texte « Extrapoler depuis : <mois/année> » est affiché au lancement (légende HTML au-dessus du graphique, mise à jour à chaque déplacement du curseur) et ne nécessite plus un clic sur le slider.
 - Correction : le fichier `VERSION` est publié dans `_site/` (ajouté à `SITE_SRC_FILES`), le pied de page peut donc lire la version au lieu d'un 404 sur `/VERSION`.
+
+=======
 
 ## 0.9.3 — 2026-11-24
 
