@@ -2,6 +2,12 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.0.0 — 2026-11-24
+
+- Dépendances épinglées dans `requirements.txt` : le flux mensuel automatique devient reproductible, sans montée de version subie.
+- Actions GitHub épinglées par SHA de commit (checkout, setup-python, upload-pages-artifact, deploy-pages).
+- Versions alignées sur `VERSION` : 1.0.0, première version annoncée et diffusée.
+
 ## 0.9.9 — 2026-11-24
 
 - Nouvel encart d'introduction entre le graphique et le pied de page : « À quel point sommes-nous proches d'un réchauffement mondial de 1,5 °C ? » et son paragraphe explicatif, traduits de l'application originale C3S (FR/EN).

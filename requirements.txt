@@ -1,5 +1,6 @@
-numpy>=1.26
-pandas>=2.1
-matplotlib>=3.8
-pillow>=10
-pytest>=8
+# Versions épinglées : flux mensuel reproductible, sans surprise à la montée de version.
+numpy==2.2.6
+pandas==2.2.3
+matplotlib==3.10.7
+pillow==11.3.0
+pytest==8.4.2

@@ -1,12 +1,8 @@
 # ROADMAP
 
-Version en cours : 0.9.1. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
+Version en cours : 1.0.0. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
 
 ## À faire
-
-ajouter le lien vers le code source vers l'application originale et vers Guillaume Meunier ainsi que la version de l'application.
-faire une favicon
-mention : The Copernicus Climate Change Service (C3S) is implemented by the European Centre for Medium-Range Weather Forecasts (ECMWF) on behalf of the European Commission is part of the European Union's space programme.
 
 ### Rendu visuel proche de l'application officielle C3S
 Référence : capture de l'application Copernicus (Global Temperature Trend Monitor).
@@ -47,3 +43,5 @@ Contraintes : bilingue FR/EN avec le mécanisme `data-i18n` existant ; sans nouv
 ## Fait
 
 - 0.9.0 : outil fonctionnel (pipeline, mise à jour mensuelle, page, exports). Détail dans `CHANGELOG.md`.
+- 0.9.2-0.9.9 : liens du pied de page (code source, application originale, Guillaume Meunier) et version affichée, mention Copernicus, favicon, rendu aligné sur la maquette, encart d'introduction. Détail dans `CHANGELOG.md`.
+- 1.0.0 : dépendances et actions GitHub épinglées (audit), versions alignées.
