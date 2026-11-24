@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Suivi du réchauffement mondial · seuil de 1,5 °C</title>
 <meta name="description" content="Suivi mensuel du réchauffement mondial (ERA5, Copernicus) et estimation de la date d'atteinte de +1,5 °C par extrapolation de la tendance sur 30 ans.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23941333'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23af1d29'/%3E%3C/svg%3E">
 <script src="vendor/plotly-basic.min.js"></script>
 <style>
   :root {
     --fg: #1d1d1f; --muted: #5f6368; --line: #e3e3e3; --bg: #fff; --card: #f7f6f4;
-    --accent: #941333; --series: #e8762c;
+    --accent: #af1d29; --orange: #ff6800;
   }
   * { box-sizing: border-box; }
   body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -28,11 +28,10 @@
   .card .k { color: var(--muted); font-size: .85rem; }
   .card .v { font-size: 1.6rem; font-weight: 700; }
   .card .v.accent { color: var(--accent); }
-  #chart { width: 100%; height: 560px; }
-  .slider { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 8px 0 4px; }
-  .slider input[type=range] { flex: 1; min-width: 240px; accent-color: var(--accent); }
-  .slider output { font-weight: 700; min-width: 9em; }
-  .slider label { color: var(--muted); font-size: .9rem; }
+  .opts { display: flex; align-items: center; gap: 8px; margin: 2px 0 4px;
+          color: var(--muted); font-size: .9rem; }
+  .opts input[type=checkbox] { accent-color: var(--accent); }
+  #chart { width: 100%; height: 640px; }
   section { margin-top: 32px; }
   h2 { font-size: 1.15rem; margin: 0 0 10px; }
   .exports { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -46,7 +45,7 @@
   footer { margin-top: 40px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line);
            padding-top: 14px; }
   .prelim { color: var(--muted); font-size: .8rem; font-weight: 400; }
-  @media (max-width: 700px) { #chart { height: 420px; } }
+  @media (max-width: 700px) { #chart { height: 460px; } }
 </style>
 </head>
 <body>
@@ -68,14 +67,10 @@
     <div class="card"><div class="k" data-i18n="cardCrossing"></div><div class="v accent" id="v-crossing"></div></div>
   </div>
 
-  <div id="chart"></div>
-
-  <div class="slider">
-    <span data-i18n="extrapolateFrom"></span>
-    <input type="range" id="step" min="0" max="0" value="0" aria-labelledby="step-out">
-    <output id="step-out"></output>
+  <div class="opts">
     <label><input type="checkbox" id="all-months"> <span data-i18n="allMonths"></span></label>
   </div>
+  <div id="chart"></div>
 
   <section>
     <h2 data-i18n="exportsTitle"></h2>
@@ -107,9 +102,15 @@
 const DATA_URL = "data/series.json";
 const MANIFEST_URL = "exports/manifest.json";
 const EXPORT_SIZE = { width: 1280, height: 720 };
+const C3S_RED = "#af1d29";
+const ORANGE = "#ff6800";
+const ORANGE_TRANSPARENT = "rgba(255, 104, 0, 0.30)";
+const PEACH = "rgb(244, 174, 142)";
+const PEACH_TRANSPARENT = "rgba(244, 174, 142, 0.2)";
 const COLORS = {
-  ipcc: "rgba(247,210,184,0.9)", series: "#f2b48a", window: "#c4471b",
-  trend: "#941333", target: "#333", grid: "#9a9a9a",
+  ipcc: PEACH_TRANSPARENT, ipccLine: PEACH, likely: "#d84a63",
+  series: ORANGE_TRANSPARENT, marker: ORANGE, window: ORANGE,
+  trend: C3S_RED, target: C3S_RED, grid: "#CCCCCC", zeroline: "#444444",
 };
 const MONTHS = {
   fr: ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."],
@@ -122,6 +123,8 @@ const I18N = {
     cardLast: "Anomalie de {m}", cardWarming: "Réchauffement estimé (tendance 30 ans)",
     cardCrossing: "1,5 °C atteint vers (si la tendance se poursuit)",
     extrapolateFrom: "Extrapoler depuis :", allMonths: "tous les mois",
+    claim: 'Le réchauffement mondial a atteint une valeur estimée à <b style="color: {ORANGE}">{temp} °C</b> en <b style="color: {ORANGE}">{end}</b>.<br>Si la tendance de réchauffement sur {years} ans menant à cette date se poursuivait, le réchauffement mondial atteindrait <b style="color: {RED}">{target}</b> en <b style="color: {RED}">{limit}</b>.',
+    crossingHover: "Si la tendance de {years} ans menant à <b>{from}</b> se poursuit, la limite de {target} serait atteinte d'ici <b>{to}</b>.",
     exportsTitle: "Exports", exportsChart: "Graphique (vue actuelle)", exportsData: "Données",
     exportsAnim: "Animations et images (générées chaque mois)",
     csvMonthly: "Série mensuelle (CSV)", csvTrends: "Tendances 30 ans (CSV)", csvIpcc: "Enveloppe GIEC (CSV)",
@@ -130,13 +133,15 @@ const I18N = {
     staticPng: "Graphique PNG", staticSvg: "Graphique SVG",
     yTitle: "Anomalie vs 1850-1900 (°C)",
     ipcc: "Projections GIEC (SR15)", likely: "Fourchette GIEC 1,5 °C (2030-2052)",
-    series: "Anomalie mensuelle ERA5", window: "Fenêtre de 30 ans", trend: "Tendance linéaire 30 ans",
-    crossing: "Atteinte de 1,5 °C", prelim: "provisoire", never: "non atteint",
+    series: "Anomalie mensuelle ERA5", window: "Anomalie observée (fenêtre de 30 ans)",
+    trend: "Tendance linéaire 30 ans", crossing: "Atteinte de 1,5 °C",
+    targetLabel: "1,5 °C",
+    prelim: "provisoire", never: "non atteint",
     methodTitle: "Méthode",
     method: [
-      "Température de l'air à 2 m, moyenne mondiale quotidienne ERA5 publiée par Copernicus Climate Pulse, agrégée en moyennes mensuelles (mois complets uniquement).",
+      "Température de l'air à 2 m, moyenne mondiale ERA5 publiée par Copernicus, Agrégée en moyennes mensuelles (mois complets uniquement).",
       "Anomalie par rapport à 1991-2020, convertie en anomalie par rapport à 1850-1900 en ajoutant un écart mensuel fixe (0,80 à 0,96 °C) issu du bulletin climatique C3S.",
-      "Tendance : régression linéaire sur 30 ans (361 mois). La date d'atteinte de 1,5 °C est l'extrapolation de cette droite ; ce n'est pas une prévision.",
+      "Tendance : régression linéaire sur 30 ans. La date d'atteinte de 1,5 °C est l'extrapolation de cette droite ; ce n'est pas une prévision.",
       "Les derniers mois sont provisoires (ERA5T) et peuvent être légèrement révisés.",
       "Méthode reprise du « Global Temperature Trend Monitor » de Copernicus C3S, réimplémentée ici pour une mise à jour automatique mensuelle.",
     ],
@@ -148,6 +153,8 @@ const I18N = {
     cardLast: "{m} anomaly", cardWarming: "Estimated warming (30-year trend)",
     cardCrossing: "1.5 °C reached around (if the trend continues)",
     extrapolateFrom: "Extrapolate from:", allMonths: "every month",
+    claim: 'Global warming reached an estimated <b style="color: {ORANGE}">{temp} °C</b> in <b style="color: {ORANGE}">{end}</b>.<br>If the {years}-year warming trend leading up to then continued, global warming would reach <b style="color: {RED}">{target}</b> by <b style="color: {RED}">{limit}</b>.',
+    crossingHover: "If the {years}-year warming trend leading up to <b>{from}</b> continued, the {target} limit would be reached by <b>{to}</b>.",
     exportsTitle: "Exports", exportsChart: "Chart (current view)", exportsData: "Data",
     exportsAnim: "Animations and images (generated monthly)",
     csvMonthly: "Monthly series (CSV)", csvTrends: "30-year trends (CSV)", csvIpcc: "IPCC envelope (CSV)",
@@ -156,13 +163,15 @@ const I18N = {
     staticPng: "Chart PNG", staticSvg: "Chart SVG",
     yTitle: "Anomaly vs 1850-1900 (°C)",
     ipcc: "IPCC projections (SR15)", likely: "IPCC 1.5 °C likely range (2030-2052)",
-    series: "ERA5 monthly anomaly", window: "30-year window", trend: "30-year linear trend",
-    crossing: "1.5 °C reached", prelim: "preliminary", never: "not reached",
+    series: "ERA5 monthly anomaly", window: "Observed anomaly (30-year window)",
+    trend: "30-year linear trend", crossing: "1.5 °C reached",
+    targetLabel: "1.5 °C",
+    prelim: "preliminary", never: "not reached",
     methodTitle: "Method",
     method: [
-      "2 m air temperature, ERA5 daily global mean published by Copernicus Climate Pulse, aggregated to monthly means (complete months only).",
+      "2 m air temperature, ERA5 global mean published by Copernicus, aggregated to monthly means (complete months only).",
       "Anomaly relative to 1991-2020, converted to 1850-1900 by adding a fixed monthly offset (0.80 to 0.96 °C) from the C3S Climate Bulletin.",
-      "Trend: 30-year linear regression (361 months). The 1.5 °C date extrapolates this line; it is not a forecast.",
+      "Trend: 30-year linear regression. The 1.5 °C date extrapolates this line; it is not a forecast.",
       "The most recent months are preliminary (ERA5T) and may be slightly revised.",
       "Method taken from the Copernicus C3S “Global Temperature Trend Monitor”, reimplemented here for automatic monthly updates.",
     ],
@@ -173,21 +182,24 @@ const I18N = {
 /* ======================================================================
    État
    ====================================================================== */
-let DATA = null, MANIFEST = null, lang = "fr", steps = [];
+let DATA = null, MANIFEST = null, lang = "fr", steps = [], currentStep = 0;
 const $ = (id) => document.getElementById(id);
 const t = (k) => I18N[lang][k];
+const N_DYNAMIC = 8;
+const DYNAMIC_IDX = [4, 5, 6, 7, 8, 9, 10, 11];
 
 /* ---------- Formatage ---------- */
 const toDate = (m) => m + "-15";                       // AAAA-MM → 15 du mois
 const fmtMonth = (m) => { const [y, mo] = m.split("-"); return `${MONTHS[lang][+mo - 1]} ${y}`; };
 const fmtNum = (x, signed = false) =>
   (signed && x >= 0 ? "+" : "") + x.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-function addMonths(m, k) {                              // 'AAAA-MM' + k mois (réel) → date ISO
+function addMonths(m, k) {                              // 'AAAA-MM' + k mois (rÉal) → date ISO
   const [y, mo] = m.split("-").map(Number);
   const d = new Date(Date.UTC(y, mo - 1, 15));
   d.setUTCDate(d.getUTCDate() + Math.round(k * 30.4375));
   return d.toISOString().slice(0, 10);
 }
+const targetLabel = () => t("targetLabel");
 
 /* ======================================================================
    Graphique
@@ -202,76 +214,199 @@ function trendTraces(row) {
   const i0 = mon.month.indexOf(row.window_start), i1 = mon.month.indexOf(row.window_end);
   const m = row.slope_per_decade / 120, c = row.intercept;
   const kEnd = Math.max(m > 0 ? (cfg.target - c) / m : 0, i1 - i0);
+  const endX = row.crossing_1_5 && i1 - i0 < kEnd ? toDate(row.crossing_1_5) : addMonths(row.window_start, kEnd);
+  const endY = row.crossing_1_5 && i1 - i0 < kEnd ? cfg.target : c + m * kEnd;
   return {
     window: { x: mon.month.slice(i0, i1 + 1).map(toDate), y: mon.anomaly_preindustrial.slice(i0, i1 + 1) },
-    trend: { x: [toDate(row.window_start), addMonths(row.window_start, kEnd)], y: [c, c + m * kEnd] },
+    trend: { x: [toDate(row.window_start), endX], y: [c, endY] },
     cross: row.crossing_1_5 ? { x: [toDate(row.crossing_1_5)], y: [cfg.target] } : { x: [], y: [] },
+    current_y: row.warming_at_end,
   };
+}
+
+function yTicks([y0, y1]) {
+  const vals = [];
+  for (let v = Math.ceil(y0 * 2) / 2; v <= y1 + 1e-9; v += 0.5) vals.push(+v.toFixed(1));
+  return {
+    tickmode: "array", tickvals: vals,
+    ticktext: vals.map((v, i) => i === vals.length - 1 ? `${v.toFixed(1)} °C` : v.toFixed(1)),
+  };
+}
+
+function stepLabel(i) {
+  const row = trendRow(steps[i]);
+  return /^\d{4}$/.test(row.step_label) ? row.step_label : fmtMonth(row.window_end);
+}
+
+function claimAnnotation(row) {
+  const text = t("claim")
+    .replaceAll("{ORANGE}", ORANGE).replaceAll("{RED}", C3S_RED)
+    .replaceAll("{temp}", fmtNum(row.warming_at_end, true))
+    .replaceAll("{end}", fmtMonth(row.window_end))
+    .replaceAll("{years}", 30)
+    .replaceAll("{target}", targetLabel())
+    .replaceAll("{limit}", row.crossing_1_5 ? fmtMonth(row.crossing_1_5) : targetLabel());
+  return {
+    text, xref: "paper", yref: "paper", x: 0, y: 1.115,
+    xanchor: "left", yanchor: "top", align: "left",
+    showarrow: false, bgcolor: "white", font: { size: 15 },
+  };
+}
+
+function stepAnnotations(row, tt) {
+  const cfg = DATA.config;
+  const limitX = cfg.limit_x_position || cfg.x_range[1].slice(0, 7);
+  const cal = (m) => `<b>${fmtMonth(m)}</b>`;
+  return [
+    claimAnnotation(row),
+    {
+      text: ` <b>${targetLabel()}</b> `, x: limitX, y: cfg.target,
+      xanchor: "right", yanchor: "bottom", showarrow: false, font: { color: C3S_RED, size: 16 },
+    },
+    {
+      text: ` <b>${fmtNum(tt.current_y)} °C</b> `, x: limitX, y: tt.current_y,
+      xanchor: "right", yanchor: "bottom", showarrow: false, font: { color: ORANGE, size: 16 },
+    },
+    {
+      text: cal(row.window_start), x: toDate(row.window_start), yref: "paper", y: -0.155,
+      xanchor: "center", yanchor: "bottom", showarrow: false,
+      font: { color: ORANGE, size: 14 }, bgcolor: "white",
+      bordercolor: ORANGE, borderwidth: 2, borderpad: 2,
+    },
+    row.crossing_1_5 ? {
+      text: cal(row.crossing_1_5), x: toDate(row.crossing_1_5), yref: "paper", y: -0.155,
+      xanchor: "center", yanchor: "bottom", showarrow: false,
+      font: { color: C3S_RED, size: 14 }, bgcolor: "white",
+      bordercolor: C3S_RED, borderwidth: 2, borderpad: 2,
+    } : { text: "", showarrow: false },
+  ];
 }
 
 function layout() {
   const cfg = DATA.config;
-  const axis = { showline: true, linewidth: 2, linecolor: "#000", ticks: "outside", tickwidth: 1.5,
-                 tickfont: { size: 12 }, zeroline: false };
-  // Flèches au bout des axes
-  const arrow = (x, y, ax, ay) => ({ x, y, xref: "paper", yref: "paper", ax, ay, axref: "pixel",
-    ayref: "pixel", showarrow: true, arrowhead: 2, arrowsize: 1.2, arrowwidth: 2, text: "" });
+  const axis = { ticks: "outside", tickwidth: 1.5, tickfont: { size: 12 }, showgrid: false,
+                 showline: false, zeroline: false };
   return {
-    margin: { l: 70, r: 20, t: 20, b: 50 },
-    font: { family: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", color: "#1d1d1f" },
-    xaxis: { ...axis, type: "date", range: cfg.x_range, showgrid: false, dtick: "M120", tickformat: "%Y" },
-    yaxis: { ...axis, range: cfg.y_range, dtick: 0.5, tickformat: ".1f", showgrid: true, griddash: "dot", gridcolor: COLORS.grid,
-             title: { text: `<b>${t("yTitle")}</b>` }, separatethousands: false },
-    legend: { x: 1.02, y: 1, xanchor: "left", yanchor: "top", font: { size: 12 }, traceorder: "normal" },
-    shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: cfg.target, y1: cfg.target,
-               line: { color: COLORS.target, width: 1, dash: "dash" } }],
-    annotations: [arrow(1, 0, -12, 0), arrow(0, 1, 0, 12)],
-    separators: lang === "fr" ? ", " : ".,",
-    hovermode: "closest", plot_bgcolor: "#fff", paper_bgcolor: "#fff",
+    margin: { l: 70, r: 30, t: 130, b: 150 },
+    font: { family: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", color: "#1d1d1f", size: 14 },
+    xaxis: { ...axis, type: "date", range: cfg.x_range, dtick: "M120", tickformat: "%Y" },
+    yaxis: { ...axis, range: cfg.y_range, showgrid: true, griddash: "dot", gridcolor: COLORS.grid,
+             gridwidth: 1, zeroline: true, zerolinecolor: COLORS.zeroline, zerolinewidth: 1.5,
+             fixedrange: true, ...yTicks(cfg.y_range) },
+    legend: { x: 0, y: -0.10, xanchor: "left", yanchor: "top", orientation: "h", font: { size: 12 } },
+    hovermode: "closest",
+    sliders: [{
+      active: steps.length - 1,
+      x: 0, xanchor: "left", y: 1.24, len: 1,
+      pad: { l: 0, r: 0, t: 0, b: 4 },
+      font: { size: 11 },
+      currentvalue: { prefix: `${t("extrapolateFrom")} `, font: { size: 16 } },
+      steps: steps.map((rowIdx, i) => ({ label: stepLabel(i), value: rowIdx, method: "skip", execute: false })),
+    }],
+    plot_bgcolor: "#fff", paper_bgcolor: "#fff",
   };
 }
 
-function draw() {
+function staticTraces() {
   const mon = DATA.monthly, ipcc = DATA.ipcc, cfg = DATA.config;
-  const row = trendRow(steps[$("step").value]);
-  const tt = trendTraces(row);
   const yrs = ipcc.year.map((y) => `${y}-01-01`);
-  const traces = [
+  return [
     { x: yrs, y: ipcc.min_t, mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false },
-    { x: yrs, y: ipcc.max_t, mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: COLORS.ipcc,
-      name: t("ipcc"), hoverinfo: "skip" },
-    { x: cfg.likely_range, y: [cfg.target, cfg.target], mode: "lines", name: t("likely"),
-      line: { color: COLORS.target, width: 6 }, hoverinfo: "skip" },
+    { x: yrs, y: ipcc.max_t, mode: "lines", line: { width: 0 }, fill: "tonexty",
+      fillcolor: COLORS.ipcc, name: t("ipcc"), hoverinfo: "skip" },
+    { x: cfg.likely_range, y: [cfg.target, cfg.target], mode: "lines+markers", name: t("likely"),
+      line: { color: COLORS.likely, width: 3 },
+      marker: { symbol: "diamond", size: 7, color: "white",
+                line: { width: 3, color: COLORS.likely } },
+      hoverinfo: "skip", showlegend: true },
     { x: mon.month.map(toDate), y: mon.anomaly_preindustrial, mode: "lines", name: t("series"),
-      line: { color: COLORS.series, width: 1.2 },
+      line: { color: COLORS.series, width: 1 },
       customdata: mon.month.map((m, i) => [fmtMonth(m), mon.status[i] === "preliminary" ? ` (${t("prelim")})` : ""]),
       hovertemplate: "%{customdata[0]} : %{y:+.2f} °C%{customdata[1]}<extra></extra>" },
-    { ...tt.window, mode: "lines", name: t("window"), line: { color: COLORS.window, width: 1.4 }, hoverinfo: "skip" },
-    { ...tt.trend, mode: "lines", name: t("trend"), line: { color: COLORS.trend, width: 3 }, hoverinfo: "skip" },
-    { ...tt.cross, mode: "markers", name: t("crossing"),
-      marker: { size: 13, color: "#fff", line: { color: COLORS.trend, width: 3 } },
-      hovertemplate: `${t("crossing")} : %{x|%m/%Y}<extra></extra>` },
   ];
-  Plotly.react("chart", traces, layout(), { responsive: true, displaylogo: false,
-    modeBarButtonsToRemove: ["select2d", "lasso2d"],
-    toImageButtonOptions: { ...EXPORT_SIZE, filename: fileStem() } });
-  updateCards(row);
 }
 
-function updateTrend() {
-  const row = trendRow(steps[$("step").value]);
+function dynamicTraces(row, tt) {
+  const cfg = DATA.config, xRight = cfg.x_range[1], yEnd = tt.current_y;
+  const hoverCross = t("crossingHover")
+    .replaceAll("{years}", 30)
+    .replaceAll("{from}", fmtMonth(row.window_end))
+    .replaceAll("{target}", targetLabel())
+    .replaceAll("{to}", row.crossing_1_5 ? fmtMonth(row.crossing_1_5) : t("never"));
+  const trendStart = { x: [tt.trend.x[0]], y: [tt.trend.y[0]] };
+  const line = (x, y, color, extra = {}) => ({ x, y, mode: "lines", line: { color, width: 1 },
+    hoverinfo: "skip", showlegend: false, ...extra });
+  return [
+    { ...tt.window, mode: "lines+markers", name: t("window"), showlegend: false,
+      line: { color: COLORS.window, width: 1.2 },
+      marker: { size: 6, color: "white", line: { width: 1, color: COLORS.window } }, hoverinfo: "skip" },
+    line([toDate(row.window_start), toDate(row.window_start)], [tt.trend.y[0], 0], ORANGE),
+    line([toDate(row.window_end), xRight], [yEnd, yEnd], ORANGE, { line: { color: ORANGE, width: 2, dash: "dot" } }),
+    row.crossing_1_5
+      ? line([toDate(row.crossing_1_5), toDate(row.crossing_1_5)], [cfg.target, 0], C3S_RED)
+      : line([], [], C3S_RED),
+    row.crossing_1_5
+      ? line([toDate(row.crossing_1_5), xRight], [cfg.target, cfg.target], C3S_RED,
+             { line: { color: C3S_RED, width: 2, dash: "dot" } })
+      : line([], [], C3S_RED),
+    { ...trendStart, x: [...trendStart.x, tt.trend.x[1]], y: [...trendStart.y, tt.trend.y[1]],
+      mode: "lines", line: { color: "white", width: 5 }, hoverinfo: "skip", showlegend: false },
+    { x: tt.trend.x, y: tt.trend.y, mode: "lines", name: t("trend"),
+      line: { color: COLORS.trend, width: 2.5 }, hoverinfo: "skip" },
+    { ...tt.cross, mode: "markers", showlegend: false, text: [hoverCross],
+      hovertemplate: "%{text}<extra></extra>",
+      hoverlabel: { bgcolor: C3S_RED, font: { color: "#fff" } },
+      marker: { size: 15, color: "rgba(255, 255, 255, 0.5)", line: { color: C3S_RED, width: 1.5 } } },
+  ];
+}
+
+function draw() {
+  const last = steps.length - 1;
+  currentStep = Math.min(currentStep, last);
+  const row = trendRow(steps[currentStep]);
   const tt = trendTraces(row);
-  Plotly.restyle("chart", { x: [tt.window.x, tt.trend.x, tt.cross.x], y: [tt.window.y, tt.trend.y, tt.cross.y] }, [4, 5, 6]);
+  Plotly.react("chart", [...staticTraces(), ...dynamicTraces(row, tt)], layout(),
+    { responsive: true, displaylogo: false,
+      modeBarButtonsToRemove: ["select2d", "lasso2d"],
+      toImageButtonOptions: { ...EXPORT_SIZE, filename: fileStem() } })
+    .then(() => {
+      updateCards(row);
+      attachSliderEvents();
+    });
+}
+
+function applyStep(i) {
+  const chart = $("chart");
+  const row = trendRow(steps[i]);
+  const tt = trendTraces(row);
+  const dyn = dynamicTraces(row, tt);
+  Plotly.restyle(chart, {
+    x: dyn.map((tr) => tr.x),
+    y: dyn.map((tr) => tr.y),
+    text: dyn.map((tr) => tr.text || null),
+  }, DYNAMIC_IDX);
+  Plotly.relayout(chart, { annotations: stepAnnotations(row, tt) });
   updateCards(row);
+  currentStep = i;
+}
+
+function attachSliderEvents() {
+  const chart = $("chart");
+  if (chart._sliderHooked) return;
+  chart._sliderHooked = true;
+  chart.on("plotly_sliderchange", (ev) => {
+    const s = ev.slider && typeof ev.slider.active === "number" ? ev.slider
+      : chart._fullLayout && chart._fullLayout.sliders && chart._fullLayout.sliders[0];
+    const idx = s && typeof s.active === "number" ? s.active : currentStep;
+    if (idx !== currentStep && idx >= 0 && idx < steps.length) applyStep(idx);
+  });
 }
 
 /* ======================================================================
-   Textes, cartes, curseur
+   Textes, cartes
    ====================================================================== */
 function updateCards(row) {
   const mon = DATA.monthly, n = mon.month.length - 1;
-  $("step-out").textContent = /^\d{4}$/.test(row.step_label) && !$("all-months").checked
-    ? row.step_label : fmtMonth(row.window_end);
   $("k-last").textContent = t("cardLast").replace("{m}", fmtMonth(mon.month[n]));
   $("v-last").innerHTML = `${fmtNum(mon.anomaly_preindustrial[n], true)} °C` +
     (mon.status[n] === "preliminary" ? ` <span class="prelim">${t("prelim")}</span>` : "");
@@ -282,9 +417,7 @@ function updateCards(row) {
 function buildSteps() {
   const tr = DATA.trends, all = $("all-months").checked;
   steps = tr.window_end.map((_, i) => i).filter((i) => all || tr.is_slider_step[i]);
-  const s = $("step");
-  s.max = steps.length - 1;
-  s.value = steps.length - 1;                 // position initiale : dernier mois
+  currentStep = steps.length - 1;
 }
 
 function applyLang() {
@@ -305,7 +438,7 @@ function applyLang() {
    Exports
    ====================================================================== */
 function fileStem() {
-  const row = trendRow(steps[$("step").value]);
+  const row = trendRow(steps[currentStep]);
   return `rechauffement_1-5C_extrapolation-${row.window_end}_${lang}`;
 }
 
@@ -336,8 +469,7 @@ $("exports").addEventListener("click", (e) => {
 /* ======================================================================
    Démarrage
    ====================================================================== */
-$("step").addEventListener("input", updateTrend);
-$("all-months").addEventListener("change", () => { buildSteps(); updateTrend(); });
+$("all-months").addEventListener("change", () => { buildSteps(); draw(); });
 document.querySelectorAll(".lang button").forEach((b) =>
   b.addEventListener("click", () => { lang = b.dataset.lang; applyLang(); }));
 
