@@ -2,6 +2,10 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 0.9.9 — 2026-11-24
+
+- Nouvel encart d'introduction entre le graphique et le pied de page : « À quel point sommes-nous proches d'un réchauffement mondial de 1,5 °C ? » et son paragraphe explicatif, traduits de l'application originale C3S (FR/EN).
+
 ## 0.9.6 — 2026-11-24
 
 - Mise en page alignée sur la maquette (`outil_suivi.png`) :
@@ -9,6 +13,7 @@ Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9
   - la phrase de synthèse n'apparaît plus en double dans le graphique (l'annotation d'en-tête Plotly est retirée ; restent les étiquettes 1,5 °C / +1,45 °C à droite et les encarts de dates) ;
   - date de mise à jour déplacée en haut à droite, sous les boutons FR/EN ;
   - légende du graphique centrée sous le tracé ; exports resserrés (≈ un tiers de largeur) ; responsive mobile ajusté (en-tête empilé, valeurs réduites).
+
 ## 0.9.8 — 2026-11-24
 
 - Bloc de synthèse conforme à la maquette : le titre « En <mois> … » est placé à l'intérieur d'un encadré au fond pêche (avec les deux phrases à grandes valeurs) ; la phrase mensuelle « Le réchauffement du mois <mois année> est de : » reste en tout petit, posée sous le titre de la page.
