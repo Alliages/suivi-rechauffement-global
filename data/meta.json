@@ -4,7 +4,7 @@
   "last_status": "final",
   "latest_warming": 1.446,
   "latest_crossing": "2028-10",
-  "generated_at": "2026-11-23T01:52Z",
+  "generated_at": "2026-11-24T18:21Z",
   "source": "https://sites.ecmwf.int/data/climatepulse/data/series/era5_daily_series_2t_global.csv",
   "monthly_offsets": [
     0.96,
