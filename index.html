@@ -25,10 +25,12 @@
                  cursor: pointer; font: inherit; border-radius: 6px; }
   .lang button[aria-pressed="true"] { background: var(--fg); color: #fff; }
   .synthese { margin: 20px 0 4px; max-width: 900px; }
-  .synthese .quand { color: var(--orange); font-size: 1.25rem; margin: 0 0 10px; }
+  .synthese .quand { color: var(--orange); font-size: 1.05rem; margin: 0; }
   .synthese p { margin: 7px 0; font-size: 1.05rem; }
-  .synthese p.p1 { font-size: .85rem; margin: 2px 0 7px; }
+  .synthese p.p1 { font-size: .85rem; margin: 2px 0 0; }
   .synthese p.p1 strong.v { font-size: inherit; margin-left: 4px; }
+  .encart { border: 1px solid var(--line); border-radius: 10px; background: #fff;
+            padding: 2px 14px 8px; margin-top: 16px; }
   .synthese strong.v { font-size: 1.55rem; font-weight: 700; margin-left: 6px; vertical-align: -0.15rem; }
   .v-orange { color: var(--orange); }
   .v-red { color: var(--accent); }
@@ -37,7 +39,7 @@
   .opts input[type=checkbox] { accent-color: var(--accent); }
   .sub { font-size: .8rem; }
   #chart { width: 100%; height: 640px; }
-  section { margin-top: 32px; }
+  section { margin-top: 20px; }
   h2 { font-size: 1.15rem; margin: 0 0 10px; }
   .exports { display: flex; flex-wrap: wrap; gap: 8px; max-width: 440px; }
   .exports button, .exports a { border: 1px solid var(--line); background: #fff; color: var(--fg);
@@ -47,8 +49,8 @@
   .exports .group { color: var(--muted); font-size: .85rem; width: 100%; margin-top: 6px; }
   .method { color: #333; max-width: 850px; }
   .method li { margin-bottom: 4px; }
-  footer { margin-top: 40px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line);
-           padding-top: 14px; }
+  footer { margin-top: 18px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line);
+           padding-top: 12px; }
   footer .credit { margin: 0 0 6px; max-width: 900px; }
   footer .mention { display: block; }
   footer a { color: inherit; }
@@ -295,7 +297,7 @@ function layout() {
   const axis = { ticks: "outside", tickwidth: 1.5, tickfont: { size: 12 }, showgrid: false,
                  showline: false, zeroline: false };
   return {
-    margin: { l: 70, r: 70, t: 130, b: 150 },
+    margin: { l: 70, r: 70, t: 130, b: 80 },
     font: { family: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", color: "#1d1d1f", size: 14 },
     xaxis: { ...axis, type: "date", range: X_VIEW, dtick: "M120", tickformat: "%Y" },
     yaxis: { ...axis, range: cfg.y_range, showgrid: true, griddash: "dot", gridcolor: COLORS.grid,
@@ -372,7 +374,8 @@ function draw() {
   currentStep = Math.min(currentStep, last);
   const row = trendRow(steps[currentStep]);
   const tt = trendTraces(row);
-  Plotly.react("chart", [...staticTraces(), ...dynamicTraces(row, tt)], layout(),
+  Plotly.react("chart", [...staticTraces(), ...dynamicTraces(row, tt)],
+    { ...layout(), annotations: stepAnnotations(row, tt) },
     { responsive: true, displaylogo: false,
       modeBarButtonsToRemove: ["select2d", "lasso2d"],
       toImageButtonOptions: { ...EXPORT_SIZE, filename: fileStem() } })
@@ -440,8 +443,10 @@ function applyLang() {
   $("synthese").innerHTML = `
     <h2 class="quand" id="quand"></h2>
     <p class="p1">${t("synthese1").replace("{m1}", monthFull(mon.month[n]))} <strong class="v v-orange" id="s-month"></strong></p>
-    <p>${t("synthese2")} <strong class="v v-red" id="s-warming"></strong></p>
-    <p>${t("synthese3").replace("{target}", targetLabel())} <strong class="v v-red" id="s-crossing"></strong></p>`;
+    <div class="encart" id="encart">
+      <p>${t("synthese2")} <strong class="v v-red" id="s-warming"></strong></p>
+      <p>${t("synthese3").replace("{target}", targetLabel())} <strong class="v v-red" id="s-crossing"></strong></p>
+    </div>`;
   $("method").innerHTML = t("method").map((li) => `<li>${li}</li>`).join("");
   $("footer").innerHTML = `<p class="credit">${t("footer")}</p>`
     + `<p class="credit mention">${t("c3sMention")}</p>`
