@@ -2,6 +2,11 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 0.9.3 — 2026-11-24
+
+- Pied de page : version de l'application (lue depuis le fichier `VERSION`), liens vers le code source (dépôt GitHub), vers l'application originale C3S et vers Guillaume Meunier, ainsi que la mention C3S/ECMWF officielle.
+- Graphique : étiquettes « 1,5 °C » (rouge) et niveau de réchauffement courant (orange) décalées à droite du tracé (`xref: paper`, marge droite élargie) pour ne plus se superposer aux courbes.
+
 ## 0.9.2 — 2026-11-24
 
 - `index.html` : rendu aligné sur l'application officielle C3S (Roadmap « Rendu visuel proche de l'application officielle ») :

@@ -44,6 +44,9 @@
   .method li { margin-bottom: 4px; }
   footer { margin-top: 40px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line);
            padding-top: 14px; }
+  footer .credit { margin: 0 0 6px; }
+  footer .mention { max-width: 850px; }
+  footer a { color: inherit; }
   .prelim { color: var(--muted); font-size: .8rem; font-weight: 400; }
   @media (max-width: 700px) { #chart { height: 460px; } }
 </style>
@@ -146,6 +149,8 @@ const I18N = {
       "Méthode reprise du « Global Temperature Trend Monitor » de Copernicus C3S, réimplémentée ici pour une mise à jour automatique mensuelle.",
     ],
     footer: "Données : Copernicus Climate Change Service (C3S) / ECMWF, ERA5. Projections : GIEC SR15. Outil non officiel, ni produit ni approuvé par Copernicus.",
+    c3sMention: "The Copernicus Climate Change Service (C3S) is implemented by the European Centre for Medium-Range Weather Forecasts (ECMWF) on behalf of the European Commission is part of the European Union's space programme.",
+    footerLinks: 'Version {v} · <a href="https://github.com/Alliages/suivi-rechauffement-global">Code source</a> · <a href="https://apps.climate.copernicus.eu/global-temperature-trend-monitor/">Application originale (C3S)</a> · <a href="https://guillaume-meunier.fr/">Guillaume Meunier</a>',
   },
   en: {
     title: "Tracking global warming and the 1.5 °C threshold",
@@ -176,13 +181,15 @@ const I18N = {
       "Method taken from the Copernicus C3S “Global Temperature Trend Monitor”, reimplemented here for automatic monthly updates.",
     ],
     footer: "Data: Copernicus Climate Change Service (C3S) / ECMWF, ERA5. Projections: IPCC SR15. Unofficial tool, not produced or endorsed by Copernicus.",
+    c3sMention: "The Copernicus Climate Change Service (C3S) is implemented by the European Centre for Medium-Range Weather Forecasts (ECMWF) on behalf of the European Commission is part of the European Union's space programme.",
+    footerLinks: 'Version {v} · <a href="https://github.com/Alliages/suivi-rechauffement-global">Source code</a> · <a href="https://apps.climate.copernicus.eu/global-temperature-trend-monitor/">Original application (C3S)</a> · <a href="https://guillaume-meunier.fr/">Guillaume Meunier</a>',
   },
 };
 
 /* ======================================================================
    État
    ====================================================================== */
-let DATA = null, MANIFEST = null, lang = "fr", steps = [], currentStep = 0;
+let DATA = null, MANIFEST = null, APP_VERSION = null, lang = "fr", steps = [], currentStep = 0;
 const $ = (id) => document.getElementById(id);
 const t = (k) => I18N[lang][k];
 const N_DYNAMIC = 8;
@@ -255,17 +262,18 @@ function claimAnnotation(row) {
 
 function stepAnnotations(row, tt) {
   const cfg = DATA.config;
-  const limitX = cfg.limit_x_position || cfg.x_range[1].slice(0, 7);
   const cal = (m) => `<b>${fmtMonth(m)}</b>`;
   return [
     claimAnnotation(row),
     {
-      text: ` <b>${targetLabel()}</b> `, x: limitX, y: cfg.target,
-      xanchor: "right", yanchor: "bottom", showarrow: false, font: { color: C3S_RED, size: 16 },
+      text: ` <b>${targetLabel()}</b> `, xref: "paper", x: 1, xshift: 6,
+      y: cfg.target, xanchor: "left", yanchor: "middle",
+      showarrow: false, font: { color: C3S_RED, size: 15 },
     },
     {
-      text: ` <b>${fmtNum(tt.current_y)} °C</b> `, x: limitX, y: tt.current_y,
-      xanchor: "right", yanchor: "bottom", showarrow: false, font: { color: ORANGE, size: 16 },
+      text: ` <b>${fmtNum(tt.current_y)} °C</b> `, xref: "paper", x: 1, xshift: 6,
+      y: tt.current_y, xanchor: "left", yanchor: "middle",
+      showarrow: false, font: { color: ORANGE, size: 15 },
     },
     {
       text: cal(row.window_start), x: toDate(row.window_start), yref: "paper", y: -0.155,
@@ -287,7 +295,7 @@ function layout() {
   const axis = { ticks: "outside", tickwidth: 1.5, tickfont: { size: 12 }, showgrid: false,
                  showline: false, zeroline: false };
   return {
-    margin: { l: 70, r: 30, t: 130, b: 150 },
+    margin: { l: 70, r: 70, t: 130, b: 150 },
     font: { family: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", color: "#1d1d1f", size: 14 },
     xaxis: { ...axis, type: "date", range: cfg.x_range, dtick: "M120", tickformat: "%Y" },
     yaxis: { ...axis, range: cfg.y_range, showgrid: true, griddash: "dot", gridcolor: COLORS.grid,
@@ -425,7 +433,9 @@ function applyLang() {
   document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === lang));
   $("method").innerHTML = t("method").map((li) => `<li>${li}</li>`).join("");
-  $("footer").textContent = t("footer");
+  $("footer").innerHTML = `<p class="credit">${t("footer")}</p>`
+    + `<p class="credit mention">${t("c3sMention")}</p>`
+    + `<p class="credit">${t("footerLinks").replace("{v}", APP_VERSION ?? "—")}</p>`;
   const meta = DATA.meta;
   $("updated").textContent = t("updated").replace("{m}", fmtMonth(meta.last_month))
     .replace("{d}", new Date(meta.generated_at).toLocaleDateString(lang));
@@ -476,6 +486,7 @@ document.querySelectorAll(".lang button").forEach((b) =>
 (async function init() {
   DATA = await (await fetch(DATA_URL, { cache: "no-cache" })).json();
   try { MANIFEST = await (await fetch(MANIFEST_URL, { cache: "no-cache" })).json(); } catch (_) { MANIFEST = null; }
+  try { APP_VERSION = (await (await fetch("VERSION", { cache: "no-cache" })).text()).trim(); } catch (_) { APP_VERSION = null; }
   if (navigator.language && !navigator.language.startsWith("fr")) lang = "en";
   buildSteps();
   applyLang();
