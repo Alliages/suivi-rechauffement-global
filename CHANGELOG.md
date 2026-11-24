@@ -14,7 +14,9 @@ Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9
   - le titre orange du bloc de synthèse reprend le libellé « En <mois> … » et suit directement le mois sélectionné par le curseur (à la place de « Extrapoler depuis : ») ; la première phrase de synthèse, « Le réchauffement du mois <mois année> est de : » (libellé court avec l'année), est écrite elle et sa valeur en tout petit, à taille identique ;
   - le bloc d'options est aligné à droite et en plus petit ;
   - le pied de page est aligné à gauche ; les blocs Export et Méthode sont déplacés tout en bas, sous le pied de page ;
-  - l'étiquette rouge « 1,5 °C » à droite est relevée avec une petite flèche qui la relie à la ligne 1,5 °C.
+  - l'étiquette rouge « 1,5 °C » à droite est relevée avec une petite flèche qui la relie à la ligne 1,5 °C ;
+  - bloc de synthèse réorganisé : titre (« En <mois> … ») et phrase mensuelle collés ensemble, puis les phrases avec les grandes valeurs regroupées à la même taille dans un encadré, plus d'espaces superflus autour du graphique et du pied de page ;
+  - à l'ouverture de la page, le graphique s'affiche directement avec la dernière date sélectionnée (les lignes de tendance et les encarts de dates sont présents dès le premier rendu, sans clic sur le curseur).
 
 ## 0.9.4 — 2026-11-24
 
