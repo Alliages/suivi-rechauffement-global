@@ -8,9 +8,13 @@ Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9
   - les trois cartes grises sont remplacées par un bloc de synthèse en phrases avec grandes valeurs colorées : « En octobre 2026… » (titré orange) ; « Le réchauffement d'octobre est de : +1,75 °C » (orange) ; « Le réchauffement mondial a atteint une valeur estimée à : +1,45 °C » (rouge) ; « Si la tendance sur 30 ans se poursuivait, le réchauffement mondial atteindrait 1,5 °C en : oct. 2028 » (rouge) — les deux dernières sont mises à jour à chaque déplacement du curseur ;
   - la phrase de synthèse n'apparaît plus en double dans le graphique (l'annotation d'en-tête Plotly est retirée ; restent les étiquettes 1,5 °C / +1,45 °C à droite et les encarts de dates) ;
   - date de mise à jour déplacée en haut à droite, sous les boutons FR/EN ;
-  - légende du graphique centrée sous le tracé ; exports resserrés (≈ un tiers de largeur) ; pied de page centré ; responsive mobile ajusté (en-tête empilé, valeurs réduites).
-
-=======
+  - légende du graphique centrée sous le tracé ; exports resserrés (≈ un tiers de largeur) ; responsive mobile ajusté (en-tête empilé, valeurs réduites).
+- Retouches UI :
+  - la date en haut à droite est sur deux lignes (« Données jusqu'à … » / « mise à jour le … »), alignée à droite et en plus petit ;
+  - le titre orange du bloc de synthèse reprend le libellé « En <mois> … » et suit directement le mois sélectionné par le curseur (à la place de « Extrapoler depuis : ») ; la première phrase de synthèse est écrite plus petit ;
+  - le bloc d'options est aligné à droite et en plus petit ;
+  - le pied de page est aligné à gauche ; les blocs Export et Méthode sont déplacés tout en bas, sous le pied de page ;
+  - l'étiquette rouge « 1,5 °C » à droite est relevée avec une petite flèche qui la relie à la ligne 1,5 °C.
 
 ## 0.9.4 — 2026-11-24
 
@@ -18,8 +22,6 @@ Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9
 - Encarts de dates (mois de départ orange, mois d'atteinte rouge) placés juste sous la ligne 0 °C de l'axe Y, dans le graphique.
 - Curseur : le texte « Extrapoler depuis : <mois/année> » est affiché au lancement (légende HTML au-dessus du graphique, mise à jour à chaque déplacement du curseur) et ne nécessite plus un clic sur le slider.
 - Correction : le fichier `VERSION` est publié dans `_site/` (ajouté à `SITE_SRC_FILES`), le pied de page peut donc lire la version au lieu d'un 404 sur `/VERSION`.
-
-=======
 
 ## 0.9.3 — 2026-11-24
 
