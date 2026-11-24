@@ -6,7 +6,7 @@ Cet outil reprend la méthode du [Global Temperature Trend Monitor](https://apps
 
 Outil non officiel, ni produit ni approuvé par Copernicus.
 
-Version : **1.1.0** ([CHANGELOG](CHANGELOG.md))
+Version : **1.2.0** ([CHANGELOG](CHANGELOG.md))
 
 ## Méthode
 
@@ -109,3 +109,8 @@ Détail dans [ROADMAP.md](ROADMAP.md).
 - Méthode : C3S Global Temperature Trend Monitor (notebook « source code »).
 - Projections : GIEC, rapport spécial 1,5 °C (SR15), 2018.
 - Plotly.js (licence MIT), embarqué dans `vendor/`.
+
+## Conventions index.html
+
+- `index.html` utilise `innerHTML` uniquement sur des contenus statiques du fichier lui-même (libellés FR/EN, FAQ, glossaire) ou des données générées par le pipeline (`data/series.json`, `data/content.json`). Aucune entrée utilisateur n'y est injectée.
+- La palette, les bornes de l'axe x et le pas de grille arrivent par `series.json` (`config.colors`, `config.x_view`, `config.grid_step`) avec des valeurs par défaut dans la page ; `data/content.json` porte les textes des onglets.

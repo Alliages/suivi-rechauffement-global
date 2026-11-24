@@ -19,9 +19,8 @@ import io
 import json
 import shutil
 import sys
-import urllib.request
 import zipfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import matplotlib
@@ -32,61 +31,17 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import config as C
+from download import http_get
 
 # --------------------------------------------------------------------------
-# Paramètres graphiques
+# Paramètres graphiques (palette et libellés : config.py)
 # --------------------------------------------------------------------------
-COLORS = {
-    "ipcc": "#f7d2b8",        # enveloppe GIEC (pêche, comme l'original)
-    "series": "#e8762c",      # anomalies observées
-    "series_light": "#f2b48a",
-    "window": "#c4471b",      # fenêtre de 30 ans
-    "trend": "#941333",       # tendance (rouge C3S)
-    "target": "#333333",
-    "grid": "#9a9a9a",
-    "text": "#222222",
-}
-DEFAULT_SIZE_PX = (1280, 720)
-DPI = 100
-GRID_STEP = 0.5               # lignes de grille horizontales (°C)
-LAST_FRAME_HOLD_MS = 2500     # pause sur la dernière image du GIF
-
-LABELS = {
-    "fr": {
-        "title": "Réchauffement mondial et seuil de 1,5 °C",
-        "ylabel": "Anomalie vs 1850-1900 (°C)",
-        "ipcc": "Projections GIEC (SR15)",
-        "likely": "Fourchette GIEC 1,5 °C (2030-2052)",
-        "series": "Anomalie mensuelle ERA5",
-        "window": "Fenêtre de 30 ans",
-        "trend": "Tendance linéaire 30 ans",
-        "crossing": "Atteinte de 1,5 °C",
-        "from": "Extrapolé depuis",
-        "reach": "1,5 °C atteint vers",
-        "warming": "Réchauffement (tendance)",
-        "month": "Mois",
-        "anomaly": "Anomalie",
-        "source": "Données : ERA5 / Copernicus C3S (Climate Pulse) · Méthode : C3S Global Temperature Trend Monitor",
-        "prelim": "provisoire",
-    },
-    "en": {
-        "title": "Global warming and the 1.5 °C threshold",
-        "ylabel": "Anomaly vs 1850-1900 (°C)",
-        "ipcc": "IPCC projections (SR15)",
-        "likely": "IPCC 1.5 °C likely range (2030-2052)",
-        "series": "ERA5 monthly anomaly",
-        "window": "30-year window",
-        "trend": "30-year linear trend",
-        "crossing": "1.5 °C reached",
-        "from": "Extrapolated from",
-        "reach": "1.5 °C reached around",
-        "warming": "Warming (trend)",
-        "month": "Month",
-        "anomaly": "Anomaly",
-        "source": "Data: ERA5 / Copernicus C3S (Climate Pulse) · Method: C3S Global Temperature Trend Monitor",
-        "prelim": "preliminary",
-    },
-}
+COLORS = C.RENDER_COLORS
+DEFAULT_SIZE_PX = C.DEFAULT_SIZE_PX
+DPI = C.DPI
+GRID_STEP = C.GRID_STEP
+LAST_FRAME_HOLD_MS = C.LAST_FRAME_HOLD_MS
+LABELS = C.LABELS
 
 
 # --------------------------------------------------------------------------
@@ -96,8 +51,7 @@ def load_series(source: str | None) -> dict:
     """Lit series.json depuis un chemin local ou une URL."""
     src = source or str(C.SERIES_JSON)
     if src.startswith("http"):
-        with urllib.request.urlopen(src, timeout=60) as r:
-            return json.load(r)
+        return json.loads(http_get(src))
     return json.loads(Path(src).read_text())
 
 
@@ -211,7 +165,6 @@ def draw_frame(fig, data, L, upto: int | None = None, trend: dict | None = None)
 
 def _add_months(d: datetime, k: float) -> datetime:
     """Ajoute k mois (réel) à une date, en approximation 30,4375 j/mois."""
-    from datetime import timedelta
     return d + timedelta(days=k * 30.4375)
 
 
@@ -233,7 +186,7 @@ def select_frames(data, animation, debut, fin, pas):
     rows = [r for r in rows if (debut is None or r["window_end"] >= debut)
             and (fin is None or r["window_end"] <= fin)]
     sel = rows[::pas]
-    if rows and sel[-1] is not rows[-1]:
+    if rows and sel[-1] != rows[-1]:
         sel.append(rows[-1])
     return [(None, r) for r in sel]
 
@@ -255,13 +208,20 @@ def render_animation(data, animation, out_dir: Path, *, lang="fr", debut=None,
     for k, (upto, trend) in enumerate(todo):
         draw_frame(fig, data, L, upto=upto, trend=trend)
         label = data["monthly"]["month"][upto] if trend is None else trend["window_end"]
-        if frames:
-            fig.savefig(frame_dir / f"{animation}_{k:04d}_{label}.{fmt}", dpi=DPI)
+        # Un seul rendu PNG par image, réutilisé pour le GIF et (si PNG) pour
+        # les fichiers ; les autres formats redessinent, matplotlib ne
+        # sérialise pas directement le SVG/JPG depuis le tampon.
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", dpi=DPI)
         if gif:
-            buf = io.BytesIO()
-            fig.savefig(buf, format="png", dpi=DPI)
             # Palette adaptative : GIF nettement plus léger
             gif_frames.append(Image.open(buf).convert("RGB").quantize(colors=64))
+        if frames:
+            path = frame_dir / f"{animation}_{k:04d}_{label}.{fmt}"
+            if fmt == "png":
+                path.write_bytes(buf.getvalue())
+            else:
+                fig.savefig(path, dpi=DPI)
     plt.close(fig)
 
     created = {}

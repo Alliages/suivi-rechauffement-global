@@ -12,13 +12,14 @@ import argparse
 import json
 import shutil
 import sys
-import urllib.request
 from datetime import datetime, timezone
 
 import pandas as pd
 
 import config as C
 from compute import compute_trends, monthly_from_daily, read_daily, validate
+import content as Content
+from download import http_get
 
 
 # --------------------------------------------------------------------------
@@ -26,9 +27,7 @@ from compute import compute_trends, monthly_from_daily, read_daily, validate
 # --------------------------------------------------------------------------
 def download(url: str, dest) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
-    req = urllib.request.Request(url, headers={"User-Agent": "suivi-rechauffement-global"})
-    with urllib.request.urlopen(req, timeout=120) as r, open(dest, "wb") as f:
-        shutil.copyfileobj(r, f)
+    dest.write_bytes(http_get(url, timeout=120))
     print(f"Téléchargé : {url}")
 
 
@@ -62,6 +61,7 @@ def write_outputs(monthly: pd.DataFrame, trends: pd.DataFrame) -> dict:
         "trend_years": C.TREND_YEARS,
     }
     C.META_JSON.write_text(json.dumps(meta, indent=2, ensure_ascii=False))
+    C.CONTENT_JSON.write_text(json.dumps(Content.build(), separators=(",", ":")))
 
     # Fichier unique pour la page (format colonnes, plus léger)
     series = {
@@ -69,6 +69,7 @@ def write_outputs(monthly: pd.DataFrame, trends: pd.DataFrame) -> dict:
         "config": {
             "x_range": C.PLOT_X_RANGE, "y_range": C.PLOT_Y_RANGE,
             "likely_range": C.IPCC_LIKELY_RANGE, "target": C.TARGET_WARMING,
+            "x_view": C.X_VIEW, "grid_step": C.GRID_STEP, "colors": C.PAGE_COLORS,
         },
         "monthly": monthly.to_dict(orient="list"),
         "trends": trends.to_dict(orient="list"),

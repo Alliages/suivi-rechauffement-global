@@ -52,7 +52,7 @@ param(
     # ---- Emplacements -----------------------------------------------------
     [string]$Dossier = '.\exports',             # dossier de sortie
     [string]$SiteUrl = 'https://alliages.github.io/suivi-rechauffement-global',
-    [string]$RawUrl = 'https://raw.githubusercontent.com/Alliages/suivi-rechauffement-global/main'
+    [string]$RawUrl = 'https://raw.githubusercontent.com/Alliages/suivi-rechauffement-global/v1.2.0'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -119,7 +119,7 @@ function Get-Pipeline {
     # Sinon : on télécharge render.py et config.py dans un dossier à côté du script
     $dir = Join-Path $PSScriptRoot 'pipeline'
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
-    foreach ($f in 'render.py', 'config.py') {
+    foreach ($f in 'render.py', 'config.py', 'download.py') {
         Invoke-WebRequest "$RawUrl/pipeline/$f" -OutFile (Join-Path $dir $f)
     }
     return $dir

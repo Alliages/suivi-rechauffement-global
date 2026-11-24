@@ -2,6 +2,13 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.2.0 — 2026-11-24
+
+- Audit appliqué (16 points) : `pipeline/config.py` désormais unique source des paramètres (chemins, méthode, bornes, palette, libellés des rendus) ; `index.html` reçoit sa palette et ses bornes via `series.json` et son texte via `data/content.json` (page ~33 Ko).
+- FAQ 5 : tableau des écarts mensuels généré depuis `config.MONTHLY_OFFSETS` (une seule source de vérité).
+- `compute_trends` vectorisé (sommes cumulées au lieu d'un `np.polyfit` par fenêtre) ; sorties vérifiées identiques.
+- Helper `pipeline/download.py` partagé par `main.py` et `render.py` ; rendu des images d'animation une seule fois (PNG réutilisé pour le GIF) ; corrections diverses (`timedelta` en tête, comparaison de frames).
+- Ancres `#faq`, `#glossaire`, `#code` pour chaque onglet ; `scripts/export.ps1` épinglé au tag `v1.2.0`.
 ## 1.1.0 — 2026-11-24
 
 - Onglets d'information intégrés à la page, sous le graphique : **Application** (vue actuelle), **FAQ** (7 questions repliées, FR/EN, avec le tableau des écarts mensuels), **Glossaire** (6 termes avec navigation), **Code source** (lien dépôt + application originale + méthode).

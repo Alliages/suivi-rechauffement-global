@@ -69,38 +69,48 @@ def monthly_from_daily(daily: pd.DataFrame) -> pd.DataFrame:
 # --------------------------------------------------------------------------
 # Tendances sur 30 ans
 # --------------------------------------------------------------------------
-def trend_for_window(values: np.ndarray) -> tuple[float, float]:
-    """Régression linéaire sur l'indice 0..n-1 (comme np.polyfit du notebook).
-    Renvoie (pente par mois, ordonnée à l'origine)."""
-    m, c = np.polyfit(np.arange(len(values)), values, 1)
-    return float(m), float(c)
-
-
 def compute_trends(monthly: pd.DataFrame) -> pd.DataFrame:
     """Une fenêtre de 361 mois se terminant à chaque mois depuis décembre
     FIRST_TREND_YEAR.
 
     is_slider_step reproduit les pas du curseur officiel : un pas par année
     (fenêtre finissant en décembre) puis les LAST_MONTHLY_STEPS derniers mois.
+
+    Régression contre l'indice local x = 0..n-1 (comme np.polyfit du
+    notebook), calculée par sommes cumulées pour toute la série d'un coup :
+      sx, sxx constants ; Sy et Sxy ≡ somme(j*valeur, fenêtre) - s*Sy.
     """
     months = pd.PeriodIndex(monthly["month"], freq="M")
-    values = monthly["anomaly_preindustrial"].to_numpy()
+    values = monthly["anomaly_preindustrial"].to_numpy(dtype=float)
     first_end = pd.Period(f"{FIRST_TREND_YEAR}-12", freq="M")
     last = months[-1]
     # Dernière année complète : décembre le plus récent disponible
     last_dec_year = last.year if last.month == 12 else last.year - 1
 
+    n = WINDOW_MONTHS
+    sx = n * (n - 1) / 2.0
+    sxx = (n - 1) * n * (2 * n - 1) / 6.0
+    denom = n * sxx - sx * sx
+    c1 = np.concatenate(([0.0], np.cumsum(values)))
+    c2 = np.concatenate(([0.0], np.cumsum(np.arange(len(values), dtype=float) * values)))
+
+    ends = np.arange(n - 1, len(months))          # index de fin de fenêtre
+    s_idx = ends - (n - 1)                        # index de début
+    Sy = c1[ends + 1] - c1[s_idx]
+    Sxy = (c2[ends + 1] - c2[s_idx]) - s_idx * Sy
+    m_all = (n * Sxy - sx * Sy) / denom
+    c_all = (Sy - m_all * sx) / n
+
     rows = []
-    for i in range(WINDOW_MONTHS - 1, len(months)):
+    for i in ends:
         end = months[i]
         if end < first_end:
             continue
-        start = months[i - WINDOW_MONTHS + 1]
+        start = months[i - n + 1]
         # Fenêtre continue obligatoire (pas de mois manquant)
-        if (end - start).n != WINDOW_MONTHS - 1:
+        if (end - start).n != n - 1:
             continue
-        m, c = trend_for_window(values[i - WINDOW_MONTHS + 1: i + 1])
-        n = WINDOW_MONTHS
+        m, c = m_all[i - (n - 1)], c_all[i - (n - 1)]
         # Réchauffement en fin de fenêtre : m*n + c, formule du notebook
         warming_end = m * n + c
         if m > 0:

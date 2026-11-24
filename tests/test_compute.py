@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
-from compute import compute_trends, monthly_from_daily, validate  # noqa: E402
+from compute import compute_trends, monthly_from_daily, read_daily, validate  # noqa: E402
 from config import MONTHLY_OFFSETS, WINDOW_MONTHS  # noqa: E402
 
 
@@ -62,3 +62,41 @@ def test_validate_detects_revision_and_loss():
     assert any("révisés" in e for e in validate(new, old, (-2, 4), 0.05))
     assert any("disparus" in e for e in validate(new.iloc[:-1], old, (-2, 4), 0.05))
     assert validate(old, old, (-2, 4), 0.05) == []
+
+
+def test_read_daily_renamed_columns_and_comments(tmp_path):
+    csv = (
+        "# commentaire d'en-tete\n"
+        "date,2t,clim_91-20,ano_91-20,status\n"
+        "2024-01-01,14.0,13.0,0.5,FINAL\n"
+        "2024-01-02,14.2,13.0,0.7,PRELIMINARY\n"
+    )
+    path = tmp_path / "daily.csv"
+    path.write_text(csv)
+    df = read_daily(path)
+    assert df["preliminary"].tolist() == [False, True]
+    assert abs(df["anomaly_9120"].iloc[1] - 0.7) < 1e-9
+
+
+def test_validate_reports_out_of_bounds():
+    df = linear_monthly(n=12)
+    df.loc[0, "anomaly_preindustrial"] = 99.0
+    errors = validate(df, None, (-2, 3), 0.05)
+    assert any("hors bornes" in e for e in errors)
+
+
+def test_compute_trends_matches_polyfit():
+    rng = np.random.default_rng(42)
+    df = linear_monthly(b=0.001)
+    noise = rng.normal(0, 0.15, size=len(df))
+    df = df.assign(anomaly_preindustrial=df["anomaly_preindustrial"] + noise)
+    tr = compute_trends(df)          # version vectorisee (sommes cumulees)
+    values = df["anomaly_preindustrial"].to_numpy()
+    n = WINDOW_MONTHS
+    for pos in (0, len(tr) // 2, len(tr) - 1):
+        row = tr.iloc[pos]
+        i = df.index[df["month"] == row["window_end"]][0]
+        m_ref, c_ref = np.polyfit(np.arange(n), values[i - n + 1: i + 1], 1)
+        assert abs(row["slope_per_decade"] - round(m_ref * 120, 4)) < 1e-8
+        assert abs(row["intercept"] - round(c_ref, 4)) < 1e-8
+        assert abs(row["warming_at_end"] - round(m_ref * n + c_ref, 3)) < 1e-8
