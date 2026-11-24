@@ -27,14 +27,15 @@
   .synthese { margin: 20px 0 4px; max-width: 900px; }
   .synthese .quand { color: var(--orange); font-size: 1.25rem; margin: 0 0 10px; }
   .synthese p { margin: 7px 0; font-size: 1.05rem; }
+  .synthese p.p1 { font-size: .85rem; margin: 2px 0 7px; }
+  .synthese p.p1 strong.v { font-size: inherit; margin-left: 4px; }
   .synthese strong.v { font-size: 1.55rem; font-weight: 700; margin-left: 6px; vertical-align: -0.15rem; }
   .v-orange { color: var(--orange); }
   .v-red { color: var(--accent); }
-  .opts { display: flex; align-items: center; gap: 8px; margin: 2px 0 4px;
-          color: var(--muted); font-size: .9rem; }
+  .opts { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 0 0 2px;
+          color: var(--muted); font-size: .8rem; }
   .opts input[type=checkbox] { accent-color: var(--accent); }
-  .slider-caption { margin: 2px 0 0; color: var(--muted); font-size: 1.05rem; }
-  .slider-caption strong { color: var(--orange); font-weight: 700; }
+  .sub { font-size: .8rem; }
   #chart { width: 100%; height: 640px; }
   section { margin-top: 32px; }
   h2 { font-size: 1.15rem; margin: 0 0 10px; }
@@ -47,8 +48,8 @@
   .method { color: #333; max-width: 850px; }
   .method li { margin-bottom: 4px; }
   footer { margin-top: 40px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line);
-           padding-top: 14px; text-align: center; }
-  footer .credit { margin: 0 auto 6px; max-width: 900px; }
+           padding-top: 14px; }
+  footer .credit { margin: 0 0 6px; max-width: 900px; }
   footer .mention { display: block; }
   footer a { color: inherit; }
   .prelim { color: var(--muted); font-size: .8rem; font-weight: 400; }
@@ -75,13 +76,12 @@
 
   <section class="synthese" id="synthese"></section>
 
-  <div class="slider-caption">
-    <span data-i18n="extrapolateFrom"></span> <strong id="step-label"></strong>
-  </div>
   <div class="opts">
     <label><input type="checkbox" id="all-months"> <span data-i18n="allMonths"></span></label>
   </div>
   <div id="chart"></div>
+
+  <footer id="footer"></footer>
 
   <section>
     <h2 data-i18n="exportsTitle"></h2>
@@ -102,8 +102,6 @@
     <h2 data-i18n="methodTitle"></h2>
     <ul id="method"></ul>
   </section>
-
-  <footer id="footer"></footer>
 </main>
 
 <script>
@@ -134,10 +132,10 @@ const MONTHS_FULL = {
 const I18N = {
   fr: {
     title: "Suivi du réchauffement mondial et du seuil de 1,5 °C",
-    updated: "Données jusqu'à {m} · mise à jour le {d}",
-    extrapolateFrom: "Extrapoler depuis :", allMonths: "tous les mois",
+    updated: "Données jusqu'à {m}", updatedDate: "mise à jour le {d}",
+    allMonths: "tous les mois",
     syntheseTitle: "En {m}…",
-    synthese1: "Le réchauffement {m1} est de :",
+    synthese1: "Le réchauffement du mois {m1} est de :",
     synthese2: "Le réchauffement mondial a atteint une valeur estimée à :",
     synthese3: "Si la tendance sur 30 ans se poursuivait, le réchauffement mondial atteindrait {target} en :",
     crossingHover: "Si la tendance de {years} ans menant à <b>{from}</b> se poursuit, la limite de {target} serait atteinte d'ici <b>{to}</b>.",
@@ -167,10 +165,10 @@ const I18N = {
   },
   en: {
     title: "Tracking global warming and the 1.5 °C threshold",
-    updated: "Data up to {m} · updated {d}",
-    extrapolateFrom: "Extrapolate from:", allMonths: "every month",
+    updated: "Data up to {m}", updatedDate: "updated {d}",
+    allMonths: "every month",
     syntheseTitle: "In {m}…",
-    synthese1: "The warming in {m1} is:",
+    synthese1: "The warming in the month {m1} is:",
     synthese2: "Global warming has reached an estimated value of:",
     synthese3: "If the 30-year trend continued, global warming would reach {target} in:",
     crossingHover: "If the {years}-year warming trend leading up to <b>{from}</b> continued, the {target} limit would be reached by <b>{to}</b>.",
@@ -264,9 +262,11 @@ function stepAnnotations(row, tt) {
   const cal = (m) => `<b>${fmtMonth(m)}</b>`;
   return [
     {
-      text: ` <b>${targetLabel()}</b> `, xref: "paper", x: 1, xshift: 6,
+      text: ` <b>${targetLabel()}</b> `, xref: "paper", x: 1, xshift: 8,
       y: cfg.target, xanchor: "left", yanchor: "middle",
-      showarrow: false, font: { color: C3S_RED, size: 15 },
+      showarrow: true, arrowhead: 2, arrowsize: 1, arrowwidth: 1.5, arrowcolor: C3S_RED,
+      ax: 0, axref: "pixel", ay: -34, ayref: "pixel",
+      font: { color: C3S_RED, size: 15 },
     },
     {
       text: ` <b>${fmtNum(tt.current_y)} °C</b> `, xref: "paper", x: 1, xshift: 6,
@@ -417,14 +417,9 @@ function monthFull(mKey) {
   return `${MONTHS_FULL[lang][+m - 1]} ${y}`;
 }
 
-function monthOf(name) {
-  if (lang !== "fr") return name;
-  return /^[aeiouéèêàâhAEIOUÉÈÊÀÂH]/.test(name) ? `d'${name}` : `de ${name}`;
-}
-
 function updateCards(row) {
   const mon = DATA.monthly, n = mon.month.length - 1;
-  $("step-label").textContent = /^\d{4}$/.test(row.step_label) ? row.step_label : fmtMonth(row.window_end);
+  $("quand").innerHTML = t("syntheseTitle").replace("{m}", monthFull(row.window_end));
   $("s-month").innerHTML = `${fmtNum(mon.anomaly_preindustrial[n], true)} °C` +
     (mon.status[n] === "preliminary" ? ` <span class="prelim">(${t("prelim")})</span>` : "");
   $("s-warming").textContent = `${fmtNum(row.warming_at_end, true)} °C`;
@@ -443,8 +438,8 @@ function applyLang() {
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === lang));
   const mon = DATA.monthly, n = mon.month.length - 1;
   $("synthese").innerHTML = `
-    <h2 class="quand">${t("syntheseTitle").replace("{m}", monthFull(mon.month[n]))}</h2>
-    <p>${t("synthese1").replace("{m1}", monthOf(MONTHS_FULL[lang][+mon.month[n].split("-")[1] - 1]))} <strong class="v v-orange" id="s-month"></strong></p>
+    <h2 class="quand" id="quand"></h2>
+    <p class="p1">${t("synthese1").replace("{m1}", monthFull(mon.month[n]))} <strong class="v v-orange" id="s-month"></strong></p>
     <p>${t("synthese2")} <strong class="v v-red" id="s-warming"></strong></p>
     <p>${t("synthese3").replace("{target}", targetLabel())} <strong class="v v-red" id="s-crossing"></strong></p>`;
   $("method").innerHTML = t("method").map((li) => `<li>${li}</li>`).join("");
@@ -452,8 +447,8 @@ function applyLang() {
     + `<p class="credit mention">${t("c3sMention")}</p>`
     + `<p class="credit">${t("footerLinks").replace("{v}", APP_VERSION ?? "—")}</p>`;
   const meta = DATA.meta;
-  $("updated").textContent = t("updated").replace("{m}", fmtMonth(meta.last_month))
-    .replace("{d}", new Date(meta.generated_at).toLocaleDateString(lang));
+  $("updated").innerHTML = t("updated").replace("{m}", fmtMonth(meta.last_month))
+    + "<br>" + t("updatedDate").replace("{d}", new Date(meta.generated_at).toLocaleDateString(lang));
   document.title = t("title");
   renderManifest();
   draw();
