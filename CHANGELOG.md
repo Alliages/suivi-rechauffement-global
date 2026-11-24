@@ -2,6 +2,14 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 0.9.6 — 2026-11-24
+
+- Mise en page alignée sur la maquette (`outil_suivi.png`) :
+  - les trois cartes grises sont remplacées par un bloc de synthèse en phrases avec grandes valeurs colorées : « En octobre 2026… » (titré orange) ; « Le réchauffement d'octobre est de : +1,75 °C » (orange) ; « Le réchauffement mondial a atteint une valeur estimée à : +1,45 °C » (rouge) ; « Si la tendance sur 30 ans se poursuivait, le réchauffement mondial atteindrait 1,5 °C en : oct. 2028 » (rouge) — les deux dernières sont mises à jour à chaque déplacement du curseur ;
+  - la phrase de synthèse n'apparaît plus en double dans le graphique (l'annotation d'en-tête Plotly est retirée ; restent les étiquettes 1,5 °C / +1,45 °C à droite et les encarts de dates) ;
+  - date de mise à jour déplacée en haut à droite, sous les boutons FR/EN ;
+  - légende du graphique centrée sous le tracé ; exports resserrés (≈ un tiers de largeur) ; pied de page centré ; responsive mobile ajusté (en-tête empilé, valeurs réduites).
+
 ## 0.9.4 — 2026-11-24
 
 - Graphique : zoom initial de l'axe X réduit à 1950 → 2055 (l'enveloppe GIEC reste complète en interne, seule la vue initiale change ; zoom/pan restent possibles).

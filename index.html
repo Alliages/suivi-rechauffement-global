@@ -17,17 +17,19 @@
          color: var(--fg); background: var(--bg); }
   main { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
   header { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+  .head-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
   h1 { font-size: 1.6rem; margin: 0 0 4px; }
   .sub { color: var(--muted); margin: 0; }
+  .lang { display: flex; gap: 6px; }
   .lang button { border: 1px solid var(--line); background: #fff; padding: 4px 10px;
                  cursor: pointer; font: inherit; border-radius: 6px; }
   .lang button[aria-pressed="true"] { background: var(--fg); color: #fff; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-           gap: 12px; margin: 20px 0; }
-  .card { background: var(--card); border-radius: 10px; padding: 14px 16px; }
-  .card .k { color: var(--muted); font-size: .85rem; }
-  .card .v { font-size: 1.6rem; font-weight: 700; }
-  .card .v.accent { color: var(--accent); }
+  .synthese { margin: 20px 0 4px; max-width: 900px; }
+  .synthese .quand { color: var(--orange); font-size: 1.25rem; margin: 0 0 10px; }
+  .synthese p { margin: 7px 0; font-size: 1.05rem; }
+  .synthese strong.v { font-size: 1.55rem; font-weight: 700; margin-left: 6px; vertical-align: -0.15rem; }
+  .v-orange { color: var(--orange); }
+  .v-red { color: var(--accent); }
   .opts { display: flex; align-items: center; gap: 8px; margin: 2px 0 4px;
           color: var(--muted); font-size: .9rem; }
   .opts input[type=checkbox] { accent-color: var(--accent); }
@@ -36,7 +38,7 @@
   #chart { width: 100%; height: 640px; }
   section { margin-top: 32px; }
   h2 { font-size: 1.15rem; margin: 0 0 10px; }
-  .exports { display: flex; flex-wrap: wrap; gap: 8px; }
+  .exports { display: flex; flex-wrap: wrap; gap: 8px; max-width: 440px; }
   .exports button, .exports a { border: 1px solid var(--line); background: #fff; color: var(--fg);
          padding: 7px 12px; border-radius: 8px; cursor: pointer; font: inherit;
          text-decoration: none; font-size: .9rem; }
@@ -45,32 +47,33 @@
   .method { color: #333; max-width: 850px; }
   .method li { margin-bottom: 4px; }
   footer { margin-top: 40px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line);
-           padding-top: 14px; }
-  footer .credit { margin: 0 0 6px; }
-  footer .mention { max-width: 850px; }
+           padding-top: 14px; text-align: center; }
+  footer .credit { margin: 0 auto 6px; max-width: 900px; }
+  footer .mention { display: block; }
   footer a { color: inherit; }
   .prelim { color: var(--muted); font-size: .8rem; font-weight: 400; }
-  @media (max-width: 700px) { #chart { height: 460px; } }
+  @media (max-width: 700px) {
+    #chart { height: 460px; }
+    header { flex-direction: column; }
+    .head-right { align-items: flex-start; text-align: left; }
+    .synthese strong.v { font-size: 1.3rem; }
+  }
 </style>
 </head>
 <body>
 <main>
   <header>
-    <div>
-      <h1 data-i18n="title"></h1>
+    <h1 data-i18n="title"></h1>
+    <div class="head-right">
+      <div class="lang">
+        <button data-lang="fr" aria-pressed="true">FR</button>
+        <button data-lang="en" aria-pressed="false">EN</button>
+      </div>
       <p class="sub" id="updated"></p>
-    </div>
-    <div class="lang">
-      <button data-lang="fr" aria-pressed="true">FR</button>
-      <button data-lang="en" aria-pressed="false">EN</button>
     </div>
   </header>
 
-  <div class="cards">
-    <div class="card"><div class="k" id="k-last"></div><div class="v" id="v-last"></div></div>
-    <div class="card"><div class="k" data-i18n="cardWarming"></div><div class="v" id="v-warming"></div></div>
-    <div class="card"><div class="k" data-i18n="cardCrossing"></div><div class="v accent" id="v-crossing"></div></div>
-  </div>
+  <section class="synthese" id="synthese"></section>
 
   <div class="slider-caption">
     <span data-i18n="extrapolateFrom"></span> <strong id="step-label"></strong>
@@ -124,14 +127,19 @@ const MONTHS = {
   fr: ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."],
   en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 };
+const MONTHS_FULL = {
+  fr: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+};
 const I18N = {
   fr: {
     title: "Suivi du réchauffement mondial et du seuil de 1,5 °C",
     updated: "Données jusqu'à {m} · mise à jour le {d}",
-    cardLast: "Anomalie de {m}", cardWarming: "Réchauffement estimé (tendance 30 ans)",
-    cardCrossing: "1,5 °C atteint vers (si la tendance se poursuit)",
     extrapolateFrom: "Extrapoler depuis :", allMonths: "tous les mois",
-    claim: 'Le réchauffement mondial a atteint une valeur estimée à <b style="color: {ORANGE}">{temp} °C</b> en <b style="color: {ORANGE}">{end}</b>.<br>Si la tendance de réchauffement sur {years} ans menant à cette date se poursuivait, le réchauffement mondial atteindrait <b style="color: {RED}">{target}</b> en <b style="color: {RED}">{limit}</b>.',
+    syntheseTitle: "En {m}…",
+    synthese1: "Le réchauffement {m1} est de :",
+    synthese2: "Le réchauffement mondial a atteint une valeur estimée à :",
+    synthese3: "Si la tendance sur 30 ans se poursuivait, le réchauffement mondial atteindrait {target} en :",
     crossingHover: "Si la tendance de {years} ans menant à <b>{from}</b> se poursuit, la limite de {target} serait atteinte d'ici <b>{to}</b>.",
     exportsTitle: "Exports", exportsChart: "Graphique (vue actuelle)", exportsData: "Données",
     exportsAnim: "Animations et images (générées chaque mois)",
@@ -160,10 +168,11 @@ const I18N = {
   en: {
     title: "Tracking global warming and the 1.5 °C threshold",
     updated: "Data up to {m} · updated {d}",
-    cardLast: "{m} anomaly", cardWarming: "Estimated warming (30-year trend)",
-    cardCrossing: "1.5 °C reached around (if the trend continues)",
     extrapolateFrom: "Extrapolate from:", allMonths: "every month",
-    claim: 'Global warming reached an estimated <b style="color: {ORANGE}">{temp} °C</b> in <b style="color: {ORANGE}">{end}</b>.<br>If the {years}-year warming trend leading up to then continued, global warming would reach <b style="color: {RED}">{target}</b> by <b style="color: {RED}">{limit}</b>.',
+    syntheseTitle: "In {m}…",
+    synthese1: "The warming in {m1} is:",
+    synthese2: "Global warming has reached an estimated value of:",
+    synthese3: "If the 30-year trend continued, global warming would reach {target} in:",
     crossingHover: "If the {years}-year warming trend leading up to <b>{from}</b> continued, the {target} limit would be reached by <b>{to}</b>.",
     exportsTitle: "Exports", exportsChart: "Chart (current view)", exportsData: "Data",
     exportsAnim: "Animations and images (generated monthly)",
@@ -250,26 +259,10 @@ function stepLabel(i) {
   return /^\d{4}$/.test(row.step_label) ? row.step_label : fmtMonth(row.window_end);
 }
 
-function claimAnnotation(row) {
-  const text = t("claim")
-    .replaceAll("{ORANGE}", ORANGE).replaceAll("{RED}", C3S_RED)
-    .replaceAll("{temp}", fmtNum(row.warming_at_end, true))
-    .replaceAll("{end}", fmtMonth(row.window_end))
-    .replaceAll("{years}", 30)
-    .replaceAll("{target}", targetLabel())
-    .replaceAll("{limit}", row.crossing_1_5 ? fmtMonth(row.crossing_1_5) : targetLabel());
-  return {
-    text, xref: "paper", yref: "paper", x: 0, y: 1.115,
-    xanchor: "left", yanchor: "top", align: "left",
-    showarrow: false, bgcolor: "white", font: { size: 15 },
-  };
-}
-
 function stepAnnotations(row, tt) {
   const cfg = DATA.config;
   const cal = (m) => `<b>${fmtMonth(m)}</b>`;
   return [
-    claimAnnotation(row),
     {
       text: ` <b>${targetLabel()}</b> `, xref: "paper", x: 1, xshift: 6,
       y: cfg.target, xanchor: "left", yanchor: "middle",
@@ -308,7 +301,7 @@ function layout() {
     yaxis: { ...axis, range: cfg.y_range, showgrid: true, griddash: "dot", gridcolor: COLORS.grid,
              gridwidth: 1, zeroline: true, zerolinecolor: COLORS.zeroline, zerolinewidth: 1.5,
              fixedrange: true, ...yTicks(cfg.y_range) },
-    legend: { x: 0, y: -0.10, xanchor: "left", yanchor: "top", orientation: "h", font: { size: 12 } },
+    legend: { x: 0.5, y: -0.10, xanchor: "center", yanchor: "top", orientation: "h", font: { size: 12 } },
     hovermode: "closest",
     sliders: [{
       active: steps.length - 1,
@@ -417,16 +410,25 @@ function attachSliderEvents() {
 }
 
 /* ======================================================================
-   Textes, cartes
+   Textes, synthèse
    ====================================================================== */
+function monthFull(mKey) {
+  const [y, m] = mKey.split("-");
+  return `${MONTHS_FULL[lang][+m - 1]} ${y}`;
+}
+
+function monthOf(name) {
+  if (lang !== "fr") return name;
+  return /^[aeiouéèêàâhAEIOUÉÈÊÀÂH]/.test(name) ? `d'${name}` : `de ${name}`;
+}
+
 function updateCards(row) {
   const mon = DATA.monthly, n = mon.month.length - 1;
   $("step-label").textContent = /^\d{4}$/.test(row.step_label) ? row.step_label : fmtMonth(row.window_end);
-  $("k-last").textContent = t("cardLast").replace("{m}", fmtMonth(mon.month[n]));
-  $("v-last").innerHTML = `${fmtNum(mon.anomaly_preindustrial[n], true)} °C` +
-    (mon.status[n] === "preliminary" ? ` <span class="prelim">${t("prelim")}</span>` : "");
-  $("v-warming").textContent = `${fmtNum(row.warming_at_end)} °C`;
-  $("v-crossing").textContent = row.crossing_1_5 ? fmtMonth(row.crossing_1_5) : t("never");
+  $("s-month").innerHTML = `${fmtNum(mon.anomaly_preindustrial[n], true)} °C` +
+    (mon.status[n] === "preliminary" ? ` <span class="prelim">(${t("prelim")})</span>` : "");
+  $("s-warming").textContent = `${fmtNum(row.warming_at_end, true)} °C`;
+  $("s-crossing").textContent = row.crossing_1_5 ? fmtMonth(row.crossing_1_5) : t("never");
 }
 
 function buildSteps() {
@@ -439,6 +441,12 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  const mon = DATA.monthly, n = mon.month.length - 1;
+  $("synthese").innerHTML = `
+    <h2 class="quand">${t("syntheseTitle").replace("{m}", monthFull(mon.month[n]))}</h2>
+    <p>${t("synthese1").replace("{m1}", monthOf(MONTHS_FULL[lang][+mon.month[n].split("-")[1] - 1]))} <strong class="v v-orange" id="s-month"></strong></p>
+    <p>${t("synthese2")} <strong class="v v-red" id="s-warming"></strong></p>
+    <p>${t("synthese3").replace("{target}", targetLabel())} <strong class="v v-red" id="s-crossing"></strong></p>`;
   $("method").innerHTML = t("method").map((li) => `<li>${li}</li>`).join("");
   $("footer").innerHTML = `<p class="credit">${t("footer")}</p>`
     + `<p class="credit mention">${t("c3sMention")}</p>`
