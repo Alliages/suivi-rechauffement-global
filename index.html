@@ -27,8 +27,8 @@
   .synthese { margin: 20px 0 4px; max-width: 900px; }
   .synthese .quand { color: var(--orange); font-size: 1.25rem; margin: 0 0 10px; }
   .synthese p { margin: 7px 0; font-size: 1.05rem; }
-  .synthese p.p1 { font-size: .95rem; margin: 2px 0 7px; }
-  .synthese p.p1 strong.v { font-size: 1.35rem; }
+  .synthese p.p1 { font-size: .85rem; margin: 2px 0 7px; }
+  .synthese p.p1 strong.v { font-size: inherit; margin-left: 4px; }
   .synthese strong.v { font-size: 1.55rem; font-weight: 700; margin-left: 6px; vertical-align: -0.15rem; }
   .v-orange { color: var(--orange); }
   .v-red { color: var(--accent); }
@@ -135,7 +135,7 @@ const I18N = {
     updated: "Données jusqu'à {m}", updatedDate: "mise à jour le {d}",
     allMonths: "tous les mois",
     syntheseTitle: "En {m}…",
-    synthese1: "Le réchauffement {m1} est de :",
+    synthese1: "Le réchauffement du mois {m1} est de :",
     synthese2: "Le réchauffement mondial a atteint une valeur estimée à :",
     synthese3: "Si la tendance sur 30 ans se poursuivait, le réchauffement mondial atteindrait {target} en :",
     crossingHover: "Si la tendance de {years} ans menant à <b>{from}</b> se poursuit, la limite de {target} serait atteinte d'ici <b>{to}</b>.",
@@ -168,7 +168,7 @@ const I18N = {
     updated: "Data up to {m}", updatedDate: "updated {d}",
     allMonths: "every month",
     syntheseTitle: "In {m}…",
-    synthese1: "The warming in {m1} is:",
+    synthese1: "The warming in the month {m1} is:",
     synthese2: "Global warming has reached an estimated value of:",
     synthese3: "If the 30-year trend continued, global warming would reach {target} in:",
     crossingHover: "If the {years}-year warming trend leading up to <b>{from}</b> continued, the {target} limit would be reached by <b>{to}</b>.",
@@ -417,11 +417,6 @@ function monthFull(mKey) {
   return `${MONTHS_FULL[lang][+m - 1]} ${y}`;
 }
 
-function monthOf(name) {
-  if (lang !== "fr") return name;
-  return /^[aeiouéèêàâhAEIOUÉÈÊÀÂH]/.test(name) ? `d'${name}` : `de ${name}`;
-}
-
 function updateCards(row) {
   const mon = DATA.monthly, n = mon.month.length - 1;
   $("quand").innerHTML = t("syntheseTitle").replace("{m}", monthFull(row.window_end));
@@ -444,7 +439,7 @@ function applyLang() {
   const mon = DATA.monthly, n = mon.month.length - 1;
   $("synthese").innerHTML = `
     <h2 class="quand" id="quand"></h2>
-    <p class="p1">${t("synthese1").replace("{m1}", monthOf(MONTHS_FULL[lang][+mon.month[n].split("-")[1] - 1]))} <strong class="v v-orange" id="s-month"></strong></p>
+    <p class="p1">${t("synthese1").replace("{m1}", monthFull(mon.month[n]))} <strong class="v v-orange" id="s-month"></strong></p>
     <p>${t("synthese2")} <strong class="v v-red" id="s-warming"></strong></p>
     <p>${t("synthese3").replace("{target}", targetLabel())} <strong class="v v-red" id="s-crossing"></strong></p>`;
   $("method").innerHTML = t("method").map((li) => `<li>${li}</li>`).join("");

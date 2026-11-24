@@ -11,7 +11,7 @@ Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9
   - légende du graphique centrée sous le tracé ; exports resserrés (≈ un tiers de largeur) ; responsive mobile ajusté (en-tête empilé, valeurs réduites).
 - Retouches UI :
   - la date en haut à droite est sur deux lignes (« Données jusqu'à … » / « mise à jour le … »), alignée à droite et en plus petit ;
-  - le titre orange du bloc de synthèse reprend le libellé « En <mois> … » et suit directement le mois sélectionné par le curseur (à la place de « Extrapoler depuis : ») ; la première phrase de synthèse est écrite plus petit ;
+  - le titre orange du bloc de synthèse reprend le libellé « En <mois> … » et suit directement le mois sélectionné par le curseur (à la place de « Extrapoler depuis : ») ; la première phrase de synthèse, « Le réchauffement du mois <mois année> est de : » (libellé court avec l'année), est écrite elle et sa valeur en tout petit, à taille identique ;
   - le bloc d'options est aligné à droite et en plus petit ;
   - le pied de page est aligné à gauche ; les blocs Export et Méthode sont déplacés tout en bas, sous le pied de page ;
   - l'étiquette rouge « 1,5 °C » à droite est relevée avec une petite flèche qui la relie à la ligne 1,5 °C.
