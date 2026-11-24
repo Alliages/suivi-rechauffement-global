@@ -2,6 +2,12 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 0.9.4 — 2026-11-24
+
+- Graphique : zoom initial de l'axe X réduit à 1950 → 2055 (l'enveloppe GIEC reste complète en interne, seule la vue initiale change ; zoom/pan restent possibles).
+- Encarts de dates (mois de départ orange, mois d'atteinte rouge) placés juste sous la ligne 0 °C de l'axe Y, dans le graphique.
+- Curseur : le texte « Extrapoler depuis : <mois/année> » est affiché au lancement (légende HTML au-dessus du graphique, mise à jour à chaque déplacement du curseur) et ne nécessite plus un clic sur le slider.
+
 ## 0.9.3 — 2026-11-24
 
 - Pied de page : version de l'application (lue depuis le fichier `VERSION`), liens vers le code source (dépôt GitHub), vers l'application originale C3S et vers Guillaume Meunier, ainsi que la mention C3S/ECMWF officielle.
