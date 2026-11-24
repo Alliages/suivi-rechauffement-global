@@ -31,6 +31,8 @@
   .opts { display: flex; align-items: center; gap: 8px; margin: 2px 0 4px;
           color: var(--muted); font-size: .9rem; }
   .opts input[type=checkbox] { accent-color: var(--accent); }
+  .slider-caption { margin: 2px 0 0; color: var(--muted); font-size: 1.05rem; }
+  .slider-caption strong { color: var(--orange); font-weight: 700; }
   #chart { width: 100%; height: 640px; }
   section { margin-top: 32px; }
   h2 { font-size: 1.15rem; margin: 0 0 10px; }
@@ -70,6 +72,9 @@
     <div class="card"><div class="k" data-i18n="cardCrossing"></div><div class="v accent" id="v-crossing"></div></div>
   </div>
 
+  <div class="slider-caption">
+    <span data-i18n="extrapolateFrom"></span> <strong id="step-label"></strong>
+  </div>
   <div class="opts">
     <label><input type="checkbox" id="all-months"> <span data-i18n="allMonths"></span></label>
   </div>
@@ -276,19 +281,21 @@ function stepAnnotations(row, tt) {
       showarrow: false, font: { color: ORANGE, size: 15 },
     },
     {
-      text: cal(row.window_start), x: toDate(row.window_start), yref: "paper", y: -0.155,
-      xanchor: "center", yanchor: "bottom", showarrow: false,
+      text: cal(row.window_start), x: toDate(row.window_start), y: -0.02,
+      xanchor: "center", yanchor: "top", showarrow: false,
       font: { color: ORANGE, size: 14 }, bgcolor: "white",
       bordercolor: ORANGE, borderwidth: 2, borderpad: 2,
     },
     row.crossing_1_5 ? {
-      text: cal(row.crossing_1_5), x: toDate(row.crossing_1_5), yref: "paper", y: -0.155,
-      xanchor: "center", yanchor: "bottom", showarrow: false,
+      text: cal(row.crossing_1_5), x: toDate(row.crossing_1_5), y: -0.02,
+      xanchor: "center", yanchor: "top", showarrow: false,
       font: { color: C3S_RED, size: 14 }, bgcolor: "white",
       bordercolor: C3S_RED, borderwidth: 2, borderpad: 2,
     } : { text: "", showarrow: false },
   ];
 }
+
+const X_VIEW = ["1950-01-01", "2055-01-01"];
 
 function layout() {
   const cfg = DATA.config;
@@ -297,7 +304,7 @@ function layout() {
   return {
     margin: { l: 70, r: 70, t: 130, b: 150 },
     font: { family: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", color: "#1d1d1f", size: 14 },
-    xaxis: { ...axis, type: "date", range: cfg.x_range, dtick: "M120", tickformat: "%Y" },
+    xaxis: { ...axis, type: "date", range: X_VIEW, dtick: "M120", tickformat: "%Y" },
     yaxis: { ...axis, range: cfg.y_range, showgrid: true, griddash: "dot", gridcolor: COLORS.grid,
              gridwidth: 1, zeroline: true, zerolinecolor: COLORS.zeroline, zerolinewidth: 1.5,
              fixedrange: true, ...yTicks(cfg.y_range) },
@@ -308,7 +315,6 @@ function layout() {
       x: 0, xanchor: "left", y: 1.24, len: 1,
       pad: { l: 0, r: 0, t: 0, b: 4 },
       font: { size: 11 },
-      currentvalue: { prefix: `${t("extrapolateFrom")} `, font: { size: 16 } },
       steps: steps.map((rowIdx, i) => ({ label: stepLabel(i), value: rowIdx, method: "skip", execute: false })),
     }],
     plot_bgcolor: "#fff", paper_bgcolor: "#fff",
@@ -415,6 +421,7 @@ function attachSliderEvents() {
    ====================================================================== */
 function updateCards(row) {
   const mon = DATA.monthly, n = mon.month.length - 1;
+  $("step-label").textContent = /^\d{4}$/.test(row.step_label) ? row.step_label : fmtMonth(row.window_end);
   $("k-last").textContent = t("cardLast").replace("{m}", fmtMonth(mon.month[n]));
   $("v-last").innerHTML = `${fmtNum(mon.anomaly_preindustrial[n], true)} °C` +
     (mon.status[n] === "preliminary" ? ` <span class="prelim">${t("prelim")}</span>` : "");
