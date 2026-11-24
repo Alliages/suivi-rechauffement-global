@@ -25,12 +25,12 @@
                  cursor: pointer; font: inherit; border-radius: 6px; }
   .lang button[aria-pressed="true"] { background: var(--fg); color: #fff; }
   .synthese { margin: 20px 0 4px; max-width: 900px; }
-  .synthese .quand { color: var(--orange); font-size: 1.05rem; margin: 0; }
+  .synthese .quand { color: var(--orange); font-size: 1.25rem; margin: 0 0 8px; }
   .synthese p { margin: 7px 0; font-size: 1.05rem; }
-  .synthese p.p1 { font-size: .85rem; margin: 2px 0 0; }
+  .synthese p.p1 { font-size: .85rem; margin: 4px 0 12px; }
   .synthese p.p1 strong.v { font-size: inherit; margin-left: 4px; }
-  .encart { border: 1px solid var(--line); border-radius: 10px; background: #fff;
-            padding: 2px 14px 8px; margin-top: 16px; }
+  .encart { border: 1px solid #f3b98d; border-radius: 10px; background: #fdf0e7;
+            padding: 10px 16px 8px; }
   .synthese strong.v { font-size: 1.55rem; font-weight: 700; margin-left: 6px; vertical-align: -0.15rem; }
   .v-orange { color: var(--orange); }
   .v-red { color: var(--accent); }
@@ -441,9 +441,9 @@ function applyLang() {
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === lang));
   const mon = DATA.monthly, n = mon.month.length - 1;
   $("synthese").innerHTML = `
-    <h2 class="quand" id="quand"></h2>
     <p class="p1">${t("synthese1").replace("{m1}", monthFull(mon.month[n]))} <strong class="v v-orange" id="s-month"></strong></p>
     <div class="encart" id="encart">
+      <h2 class="quand" id="quand"></h2>
       <p>${t("synthese2")} <strong class="v v-red" id="s-warming"></strong></p>
       <p>${t("synthese3").replace("{target}", targetLabel())} <strong class="v v-red" id="s-crossing"></strong></p>
     </div>`;

@@ -9,14 +9,20 @@ Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9
   - la phrase de synthèse n'apparaît plus en double dans le graphique (l'annotation d'en-tête Plotly est retirée ; restent les étiquettes 1,5 °C / +1,45 °C à droite et les encarts de dates) ;
   - date de mise à jour déplacée en haut à droite, sous les boutons FR/EN ;
   - légende du graphique centrée sous le tracé ; exports resserrés (≈ un tiers de largeur) ; responsive mobile ajusté (en-tête empilé, valeurs réduites).
-- Retouches UI :
-  - la date en haut à droite est sur deux lignes (« Données jusqu'à … » / « mise à jour le … »), alignée à droite et en plus petit ;
-  - le titre orange du bloc de synthèse reprend le libellé « En <mois> … » et suit directement le mois sélectionné par le curseur (à la place de « Extrapoler depuis : ») ; la première phrase de synthèse, « Le réchauffement du mois <mois année> est de : » (libellé court avec l'année), est écrite elle et sa valeur en tout petit, à taille identique ;
-  - le bloc d'options est aligné à droite et en plus petit ;
-  - le pied de page est aligné à gauche ; les blocs Export et Méthode sont déplacés tout en bas, sous le pied de page ;
-  - l'étiquette rouge « 1,5 °C » à droite est relevée avec une petite flèche qui la relie à la ligne 1,5 °C ;
-  - bloc de synthèse réorganisé : titre (« En <mois> … ») et phrase mensuelle collés ensemble, puis les phrases avec les grandes valeurs regroupées à la même taille dans un encadré, plus d'espaces superflus autour du graphique et du pied de page ;
-  - à l'ouverture de la page, le graphique s'affiche directement avec la dernière date sélectionnée (les lignes de tendance et les encarts de dates sont présents dès le premier rendu, sans clic sur le curseur).
+## 0.9.8 — 2026-11-24
+
+- Bloc de synthèse conforme à la maquette : le titre « En <mois> … » est placé à l'intérieur d'un encadré au fond pêche (avec les deux phrases à grandes valeurs) ; la phrase mensuelle « Le réchauffement du mois <mois année> est de : » reste en tout petit, posée sous le titre de la page.
+- À l'ouverture de la page, le graphique s'affiche directement avec la dernière date sélectionnée (les lignes de tendance et les encarts de dates sont présents dès le premier rendu, sans clic sur le curseur).
+- Espaces superflus supprimés : marge basse du graphique et espaces autour du pied de page réduits.
+
+## 0.9.7 — 2026-11-24
+
+- La date en haut à droite est sur deux lignes (« Données jusqu'à … » / « mise à jour le … »), alignée à droite et en plus petit.
+- Le titre orange du bloc de synthèse reprend le libellé « En <mois> … » et suit directement le mois sélectionné par le curseur (à la place de « Extrapoler depuis : ») ; la première phrase de synthèse, « Le réchauffement du mois <mois année> est de : » (avec l'année), est écrite elle et sa valeur en tout petit, à taille identique.
+- Le bloc d'options est aligné à droite et en plus petit.
+- Le pied de page est aligné à gauche ; les blocs Export et Méthode sont déplacés tout en bas, sous le pied de page.
+- L'étiquette rouge « 1,5 °C » à droite est relevée avec une petite flèche qui la relie à la ligne 1,5 °C.
+- Nettoyage : suppression de marqueurs de conflit `=======` restés dans ce fichier après des fusions.
 
 ## 0.9.4 — 2026-11-24
 
