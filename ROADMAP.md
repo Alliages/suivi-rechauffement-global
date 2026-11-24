@@ -23,25 +23,9 @@ Référence : capture de l'application Copernicus (Global Temperature Trend Moni
 - Police et palette alignées sur cette référence (orange `--series`, rouge `--accent`) ; rendu identique sur mobile.
 - Même mise en forme pour les exports d'images et de GIF (`render.py`), pour cohérence avec la page.
 
-### Onglets d'information
-Barre d'onglets en haut de page, avec icône et soulignement de l'onglet actif, comme la référence :
-
-1. **Application** : la page actuelle (synthèse, curseur, graphique, exports).
-2. **FAQ** : questions fréquentes, par exemple :
-   - que signifie « atteindre 1,5 °C » ici, et en quoi diffère-t-il de l'Accord de Paris (moyenne sur 20 ans) ?
-   - pourquoi une extrapolation n'est-elle pas une prévision ?
-   - pourquoi 30 ans de tendance ?
-   - d'où viennent les données, à quelle fréquence sont-elles mises à jour ?
-   - pourquoi un écart avec l'outil officiel Copernicus ?
-   - qu'est-ce qu'un mois « provisoire » ?
-   - comment citer et réutiliser les données et images ?
-3. **Glossaire** : anomalie, niveau préindustriel (1850-1900), période de référence 1991-2020, ERA5, réanalyse, tendance linéaire, extrapolation, enveloppe GIEC, SR15, mois provisoire / final.
-4. **Code source** : explication de la méthode pas à pas (reprend la section « Méthode » actuelle), extraits de `compute.py` et `config.py`, lien vers le dépôt GitHub, licence GPL3.
-
-Contraintes : bilingue FR/EN avec le mécanisme `data-i18n` existant ; sans nouvelle dépendance ; onglets accessibles au clavier (`role="tablist"`) ; adresse par ancre (`#faq`, `#glossaire`, `#code`) pour partager un onglet.
-
 ## Fait
 
 - 0.9.0 : outil fonctionnel (pipeline, mise à jour mensuelle, page, exports). Détail dans `CHANGELOG.md`.
 - 0.9.2-0.9.9 : liens du pied de page (code source, application originale, Guillaume Meunier) et version affichée, mention Copernicus, favicon, rendu aligné sur la maquette, encart d'introduction. Détail dans `CHANGELOG.md`.
 - 1.0.0 : dépendances et actions GitHub épinglées (audit), versions alignées.
+- 1.1.0 : onglets d'information (Application, FAQ, Glossaire, Code source), bilingues FR/EN, FAQ repliée par question, tableau des écarts mensuels, sans nouvelle dépendance.

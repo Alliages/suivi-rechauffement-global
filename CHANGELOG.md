@@ -2,6 +2,11 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.1.0 — 2026-11-24
+
+- Onglets d'information intégrés à la page, sous le graphique : **Application** (vue actuelle), **FAQ** (7 questions repliées, FR/EN, avec le tableau des écarts mensuels), **Glossaire** (6 termes avec navigation), **Code source** (lien dépôt + application originale + méthode).
+- Bilingue via le mécanisme `data-i18n` existant, sans nouvelle dépendance : la page reste à ~58 Ko (Plotly et données restent dans `vendor/` et `data/`).
+
 ## 1.0.0 — 2026-11-24
 
 - Dépendances épinglées dans `requirements.txt` : le flux mensuel automatique devient reproductible, sans montée de version subie.
