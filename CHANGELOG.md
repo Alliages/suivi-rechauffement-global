@@ -2,6 +2,9 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.2.2 — 2026-11-24
+
+- Mise à jour programmée simplifiée : une seule exécution mensuelle le 5 (cron `23 5 5 * *`), comme l'application officielle C3S ; FAQ et écran « code source » alignés.
 ## 1.2.1 — 2026-11-24
 
 - Favicon hexagonal (courbe GIEC + seuil 1,5 °C) : `favicon.svg` à la racine, copié dans `_site/`.
