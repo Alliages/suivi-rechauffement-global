@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="favicon.svg" alt="Logo" width="120">
+
 [![Mise à jour mensuelle](https://github.com/Alliages/suivi-rechauffement-global/actions/workflows/mise-a-jour.yml/badge.svg)](https://github.com/Alliages/suivi-rechauffement-global/actions/workflows/mise-a-jour.yml)
 [![Version](https://img.shields.io/badge/version-1.3-af1d29.svg)](CHANGELOG.md)
 [![Licence](https://img.shields.io/github/license/Alliages/suivi-rechauffement-global.svg)](LICENSE)
