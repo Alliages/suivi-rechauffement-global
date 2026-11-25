@@ -1,6 +1,6 @@
 # ROADMAP
 
-Version en cours : 1.2.5. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
+Version en cours : 1.2.6. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
 
 ## À faire
 
@@ -35,3 +35,4 @@ Référence : capture de l'application Copernicus (Global Temperature Trend Moni
 - 1.2.3 : survol des points au style de l'application officielle (bandeau orange, titre, sous-titre, mois et valeur).
 - 1.2.4 : petites icônes SVG Tabler inline devant les libellés des onglets.
 - 1.2.5 : bandeau d'en-tête rouge foncé pleine largeur avec le favicon en logo.
+- 1.2.6 : contour blanc de 3 px autour du logo du bandeau.

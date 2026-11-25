@@ -2,6 +2,10 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.2.6 — 2026-11-25
+
+- Contour blanc de 3 px autour du logo du bandeau, épousant la forme hexagonale (fond blanc + clip-path, sans modifier le favicon).
+
 ## 1.2.5 — 2026-11-25
 
 - Bandeau rouge foncé pleine largeur en tête de page : logo hexagonal (favicon) à gauche du titre, titre et liens FR/EN en blanc, « Données jusqu'à »/« mise à jour le » relookés pour le fond rouge.
