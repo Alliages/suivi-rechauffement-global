@@ -107,8 +107,7 @@ Pour tester hors ligne : `python tests/make_fixture.py /tmp/fx`, puis `--daily /
 
 Détail dans [ROADMAP.md](ROADMAP.md).
 
-- Rendu visuel proche de l'application officielle C3S : phrases de synthèse, curseur « Extrapoler à partir de », graphique (tendance, pointillés, enveloppe GIEC), exports alignés.
-- Onglets d'information : Application, FAQ, Glossaire, Code source.
+- rien de particulier
 
 ## Sources et crédits
 
