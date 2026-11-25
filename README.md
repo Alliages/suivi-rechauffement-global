@@ -1,7 +1,7 @@
 <div align="center">
 
 [![Mise à jour mensuelle](https://github.com/Alliages/suivi-rechauffement-global/actions/workflows/mise-a-jour.yml/badge.svg)](https://github.com/Alliages/suivi-rechauffement-global/actions/workflows/mise-a-jour.yml)
-[![Version](https://img.shields.io/badge/version-1.3.1-af1d29.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3-af1d29.svg)](CHANGELOG.md)
 [![Licence](https://img.shields.io/github/license/Alliages/suivi-rechauffement-global.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-3776ab.svg)](requirements.txt)
 [![Page](https://img.shields.io/badge/page-en%20ligne-ff6800.svg)](https://alliages.github.io/suivi-rechauffement-global/)
@@ -13,6 +13,8 @@
 Outil libre qui reprend la méthode du [Global Temperature Trend Monitor](https://apps.climate.copernicus.eu/global-temperature-trend-monitor/) de Copernicus C3S, dont l'application officielle n'est plus mise à jour depuis août 2026. Il est réimplémenté pour se mettre à jour **automatiquement chaque mois** et ajoute des exports : données, images, GIF animés et script PowerShell.
 
 [Page en ligne](https://alliages.github.io/suivi-rechauffement-global/) · [Méthode](#méthode) · [Organisation](#organisation) · [Mise à jour](#mise-à-jour) · [Exports](#exports) · [Développement local](#développement-local) · [Roadmap](ROADMAP.md) · [Changelog](CHANGELOG.md)
+
+<img src="docs/imprime_ecran.png" alt="Capture d'écran de l'application" width="800">
 
 </div>
 
@@ -130,4 +132,4 @@ Détail dans [ROADMAP.md](ROADMAP.md).
 - `app.js` utilise `innerHTML` uniquement sur ses propres libellés FR/EN ou sur des données générées par le pipeline (`data/series.json`, `data/content.json`). Aucune entrée utilisateur n'y est injectée. La CSP de `index.html` n'autorise que les scripts servis par le site lui-même : pas de script inline dans la page, pas de `onclick=`, pas de CDN.
 - Tous les réglages viennent de `config.py` via `series.json` (`config.colors`, `x_view`, `grid_step`, `export_size`, `days_per_month`, `meta.trend_years`, `meta.monthly_offsets`), sans valeur recopiée dans la page ; `data/content.json` porte les textes des onglets.
 
-Version : **1.3.1** ([CHANGELOG](CHANGELOG.md))
+Version : **1.3** ([CHANGELOG](CHANGELOG.md))

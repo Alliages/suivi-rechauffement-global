@@ -2,9 +2,9 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
-## 1.3.1 — 2026-11-25
+## 1.3 — 2026-11-25
 
-- README réorganisé : badges (CI, version, licence, Python, page en ligne), titre et description en tête, liens d'ancrage de navigation, puis sections inchangées (contenu repris de la 1.3.0).
+- README réorganisé : badges (CI, version, licence, Python, page en ligne), titre et description en tête, capture d'écran de l'application, liens d'ancrage de navigation, puis sections inchangées (contenu repris de la 1.3.0).
 
 ## 1.3.0 — 2026-11-25
 
