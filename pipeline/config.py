@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT_DIR / "data"            # données versionnées (petites)
 CACHE_DIR = ROOT_DIR / ".cache"         # téléchargements bruts (non versionnés)
-SITE_SRC_FILES = ["index.html", "vendor", "VERSION"]  # page web et version, à la racine du dépôt
+SITE_SRC_FILES = ["index.html", "vendor", "favicon.svg", "VERSION"]  # page web, favicon et version, à la racine du dépôt
 SITE_OUT_DIR = ROOT_DIR / "_site"       # page assemblée, publiée sur GitHub Pages
 
 MONTHLY_CSV = DATA_DIR / "era5_global_monthly.csv"

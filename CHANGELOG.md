@@ -2,6 +2,9 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.2.1 — 2026-11-24
+
+- Favicon hexagonal (courbe GIEC + seuil 1,5 °C) : `favicon.svg` à la racine, copié dans `_site/`.
 ## 1.2.0 — 2026-11-24
 
 - Audit appliqué (16 points) : `pipeline/config.py` désormais unique source des paramètres (chemins, méthode, bornes, palette, libellés des rendus) ; `index.html` reçoit sa palette et ses bornes via `series.json` et son texte via `data/content.json` (page ~33 Ko).

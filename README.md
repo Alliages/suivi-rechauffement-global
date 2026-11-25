@@ -6,7 +6,7 @@ Cet outil reprend la méthode du [Global Temperature Trend Monitor](https://apps
 
 Outil non officiel, ni produit ni approuvé par Copernicus.
 
-Version : **1.2.0** ([CHANGELOG](CHANGELOG.md))
+Version : **1.2.1** ([CHANGELOG](CHANGELOG.md))
 
 ## Méthode
 

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <clipPath id="hex">
+      <polygon points="50,2 91,26 91,74 50,98 9,74 9,26"/>
+    </clipPath>
+  </defs>
+
+  <!-- Fond rouge, hexagone pointe en haut -->
+  <polygon points="50,2 91,26 91,74 50,98 9,74 9,26" fill="#B0191E"/>
+
+  <g clip-path="url(#hex)">
+    <!-- Bande d'incertitude de la courbe (style GIEC) -->
+    <path d="M9,90
+             C 22,89 33,87 43,81
+             C 53,75 58,67 64,57
+             C 70,47 76,41 84,37
+             L 91,32
+             L 91,62
+             C 84,63 79,66 73,64
+             C 67,62 62,67 56,73
+             C 48,80 37,86 26,88
+             L 9,90 Z"
+          fill="#E8A598" stroke="#F6D7C4" stroke-width="1.2" stroke-linejoin="round"/>
+
+    <!-- Ligne pointillee du seuil 1,5 oC -->
+    <line x1="7" y1="40" x2="93" y2="40" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="6 4"/>
+
+  </g>
+</svg>
