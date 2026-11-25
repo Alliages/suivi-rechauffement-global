@@ -217,6 +217,8 @@ const I18N = {
     trend: "Tendance linéaire 30 ans", crossing: "Atteinte de 1,5 °C",
     targetLabel: "1,5 °C",
     prelim: "provisoire", never: "non atteint",
+    hoverTitle: "Changement de température observé",
+    hoverSub: "Depuis l'époque préindustrielle (1850-1900)",
     methodTitle: "Méthode",
     method: [
       "Température de l'air à 2 m, moyenne mondiale ERA5 publiée par Copernicus, Agrégée en moyennes mensuelles (mois complets uniquement).",
@@ -253,6 +255,8 @@ const I18N = {
     trend: "30-year linear trend", crossing: "1.5 °C reached",
     targetLabel: "1.5 °C",
     prelim: "preliminary", never: "not reached",
+    hoverTitle: "Observed temperature change",
+    hoverSub: "Since pre-industrial times (1850-1900)",
     methodTitle: "Method",
     method: [
       "2 m air temperature, ERA5 global mean published by Copernicus, aggregated to monthly means (complete months only).",
@@ -408,7 +412,8 @@ function staticTraces() {
     { x: mon.month.map(toDate), y: mon.anomaly_preindustrial, mode: "lines", name: t("series"),
       line: { color: COLORS.series, width: 1 },
       customdata: mon.month.map((m, i) => [fmtMonth(m), mon.status[i] === "preliminary" ? ` (${t("prelim")})` : ""]),
-      hovertemplate: "%{customdata[0]} : %{y:+.2f} °C%{customdata[1]}<extra></extra>" },
+      hovertemplate: `<b>${t("hoverTitle")}</b><br>${t("hoverSub")}<br>%{customdata[0]} - %{y:+.2f} °C%{customdata[1]}<extra></extra>`,
+      hoverlabel: { bgcolor: COLORS.marker, font: { color: "#1d1d1f" } } },
   ];
 }
 

@@ -1,6 +1,6 @@
 # ROADMAP
 
-Version en cours : 1.2.2. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
+Version en cours : 1.2.3. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
 
 ## À faire
 
@@ -32,3 +32,4 @@ Référence : capture de l'application Copernicus (Global Temperature Trend Moni
 - 1.2.0 : audit appliqué : constantes centralisées dans `pipeline/config.py` (palette page + rendu Python + libellés), `compute_trends` vectorisé, tendances vérifiées identiques à `np.polyfit`, helper `download.py` commun, rendu des images une seule fois par image d'animation, contenus des onglets déplacés dans `data/content.json` (tableau FAQ 5 généré depuis `MONTHLY_OFFSETS`), ancres `#faq`/`#glossaire`/`#code`, tests renforcés (9 tests).
 - 1.2.1 : favicon hexagonal SVG (courbe GIEC + seuil 1,5 °C).
 - 1.2.2 : mise à jour mensuelle le 5 seulement (au lieu des 4, 8, 15).
+- 1.2.3 : survol des points au style de l'application officielle (bandeau orange, titre, sous-titre, mois et valeur).
