@@ -2,7 +2,4 @@
 _site/
 __pycache__/
 *.pyc
-exports/
-scripts/.venv/
-scripts/pipeline/
 .venv/

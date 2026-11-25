@@ -3,7 +3,6 @@ Point d'entrée du pipeline.
 
     python pipeline/main.py                 # télécharge, calcule, écrit data/
     python pipeline/main.py --site          # + assemble la page dans _site/
-    python pipeline/main.py --site --render # + images et GIF dans _site/exports/
     python pipeline/main.py --daily fichier.csv   # utilise un CSV local (hors ligne)
 """
 from __future__ import annotations
@@ -92,8 +91,6 @@ def main(argv=None) -> int:
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--daily", help="CSV quotidien local (sinon téléchargé)")
     p.add_argument("--site", action="store_true", help="assembler _site/")
-    p.add_argument("--render", action="store_true",
-                   help="générer images et GIF par défaut dans _site/exports/")
     p.add_argument("--force", action="store_true",
                    help="publier même si les contrôles qualité échouent")
     a = p.parse_args(argv)
@@ -127,9 +124,6 @@ def main(argv=None) -> int:
 
     if a.site:
         build_site()
-    if a.render:
-        import render
-        render.render_defaults(C.SITE_OUT_DIR / "exports")
     return 0
 
 

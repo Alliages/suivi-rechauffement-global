@@ -1,4 +1,4 @@
-# Mise à jour automatique : données ERA5, images, GIF, publication GitHub Pages.
+# Mise à jour automatique : données ERA5, calculs, publication GitHub Pages.
 #
 # Déclenchement :
 #   - le 5 de chaque mois (le mois précédent est complet dans Climate Pulse
@@ -51,9 +51,9 @@ jobs:
       - name: Tests de la méthode
         run: python -m pytest -q tests
 
-      - name: Données, calculs, images et GIF
+      - name: Données et calculs
         # Échoue (et n'écrase rien) si les contrôles qualité ne passent pas
-        run: python pipeline/main.py --site --render
+        run: python pipeline/main.py --site
 
       - name: Commit des données si elles ont changé
         # meta.json et series.json portent l'heure de génération : on les

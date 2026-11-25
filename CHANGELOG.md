@@ -11,7 +11,7 @@ Revue selon les Web Interface Guidelines (Vercel).
 - **Formats :** mois via `Intl.DateTimeFormat`, virgule décimale dans le graphique, espaces insécables (°C, ponctuation française, guillemets), apostrophes typographiques, `translate="no"` sur les sigles.
 - **URL :** langue (`?lang=`), pas du curseur (`?m=`) et option « un pas par mois » (`?all=1`) dans l'URL ; historique et retour arrière pour les onglets ; langue mémorisée.
 - **Mobile et CSS :** marges et légende adaptées, glissement tactile du graphique désactivé, cibles tactiles agrandies, états `:hover`/`:focus-visible`, police en `rem`, `tabular-nums`, `theme-color`, `color-scheme`.
-- **Supprimé :** le groupe « Animations et images » (GIF, ZIP, PNG/SVG statiques) de l'onglet Application, et le code qui lisait `exports/manifest.json`. Le pipeline continue de générer ces fichiers.
+- **Supprimé :** les exports GIF, ZIP et images statiques : groupe « Animations et images » de l'onglet Application, code qui lisait `exports/manifest.json`, `pipeline/render.py`, `scripts/export.ps1`, option `--render` de `main.py`, constantes de rendu et libellés de `config.py`, matplotlib et Pillow (dépendances), tests de rendu. Restent les exports PNG/SVG du graphique et les CSV/JSON.
 
 ## 1.3 — 2026-11-25
 

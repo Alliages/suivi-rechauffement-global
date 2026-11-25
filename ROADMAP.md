@@ -1,6 +1,6 @@
 # ROADMAP
 
-Version en cours : 1.3. Seule liste de suivi du projet. Les idées s'ajoutent ici
+Version en cours : 1.4. Seule liste de suivi du projet. Les idées s'ajoutent ici
 
 ## À faire
 
@@ -22,3 +22,4 @@ Version en cours : 1.3. Seule liste de suivi du projet. Les idées s'ajoutent ic
 - 1.2.7 : proportions de l'hexagone du logo corrigées, date d'après réduite, liens des onglets en rouge foncé.
 - 1.3.0 : audit appliqué : planning du 5 effectif, droits CI par job, CSP, `app.js`/`style.css`, validation des paramètres, Dependabot + pip-audit, Pillow 13, animations FR/EN, rendu sans recréer la figure, FAQ dans `content_src.json`, tests bout en bout.
 - 1.3 : README réorganisé (badges, en-tête centré, capture d'écran, liens de navigation) selon le modèle fourni.
+- 1.4 : revue Web Interface Guidelines (accessibilité, erreurs de chargement, formats, URL) ; exports GIF/ZIP/images supprimés (page et pipeline).

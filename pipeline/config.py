@@ -1,8 +1,7 @@
 """
 Paramètres centralisés du pipeline.
 
-Toutes les constantes (sources, périodes, méthode, palette et libellés des
-rendus) sont regroupées ici pour qu'une évolution de Copernicus ne demande de
+Toutes les constantes (sources, périodes, méthode, palette) sont regroupées ici pour qu'une évolution de Copernicus ne demande de
 modifier qu'un seul fichier. index.html reçoit sa palette via series.json.
 """
 from pathlib import Path
@@ -63,45 +62,16 @@ LAST_MONTHLY_STEPS = 12   # nb de pas mensuels en fin de curseur
 # --------------------------------------------------------------------------
 # Bornes d'affichage
 # --------------------------------------------------------------------------
-PLOT_X_RANGE = ("1970-01-01", "2062-01-01")        # rendus matplotlib
+PLOT_X_RANGE = ("1970-01-01", "2062-01-01")        # bornes du graphique (fin des lignes de repère)
 PLOT_Y_RANGE = (-0.23, 2.25)
 IPCC_YEARS = (1970, 2062)
 IPCC_LIKELY_RANGE = ("2030-01-01", "2052-12-31")   # « likely » GIEC à 1,5 °C
 X_VIEW = ("1950-01-01", "2055-01-01")              # axe x de la page web
 GRID_STEP = 0.5                                    # grille horizontale (°C)
 DAYS_PER_MONTH = 30.4375                           # prolongement des tendances (Python et page)
-LANGS = ("fr", "en")
 
-# --------------------------------------------------------------------------
-# Rendu Python (render.py) ; DEFAULT_SIZE_PX sert aussi aux exports de la page
-# --------------------------------------------------------------------------
+# Taille des exports PNG/SVG de la page (transmise via series.json)
 DEFAULT_SIZE_PX = (1280, 720)
-SIZE_BOUNDS_PX = (100, 4000)  # tailles acceptées en ligne de commande
-DPI = 100
-LAST_FRAME_HOLD_MS = 2500     # pause sur la dernière image du GIF
-GIF_COLORS = 64               # palette adaptative : GIF nettement plus léger
-# Exports précalculés chaque mois (render_defaults)
-DEFAULT_ANIMATIONS = {
-    "courbe": dict(debut="1971-01", pas=3, fps=12),
-    "extrapolation": dict(debut=f"{FIRST_TREND_YEAR}-12", pas=1, fps=10),
-}
-# Mise en page en fractions de la figure
-RENDER_LAYOUT = {
-    "axes": [0.07, 0.12, 0.66, 0.76],
-    "info_xy": (0.755, 0.40), "title_xy": (0.07, 0.94), "source_xy": (0.07, 0.03),
-    "title_size": 16, "info_size": 12, "source_size": 8, "legend_size": 10, "tick_size": 10,
-}
-RENDER_COLORS = {
-    "ipcc": "#f7d2b8",        # enveloppe GIEC (pêche, comme l'original)
-    "series": "#e8762c",      # anomalies observées
-    "series_light": "#f2b48a",
-    "window": "#c4471b",      # fenêtre de 30 ans
-    "trend": "#941333",       # tendance (rouge C3S)
-    "target": "#333333",
-    "grid": "#9a9a9a",
-    "text": "#222222",
-    "source": "#555555",
-}
 # La palette de la page (index.html) passe par series.json ; les variantes
 # « _transparent » sont écrites en rgba/rgb pour Plotly.
 PAGE_COLORS = {
@@ -114,43 +84,6 @@ PAGE_COLORS = {
     "grid": "#CCCCCC",
     "zeroline": "#444444",
 }
-LABELS = {
-    "fr": {
-        "title": "Réchauffement mondial et seuil de 1,5 °C",
-        "ylabel": "Anomalie vs 1850-1900 (°C)",
-        "ipcc": "Projections GIEC (SR15)",
-        "likely": "Fourchette GIEC 1,5 °C (2030-2052)",
-        "series": "Anomalie mensuelle ERA5",
-        "window": "Fenêtre de 30 ans",
-        "trend": "Tendance linéaire 30 ans",
-        "crossing": "Atteinte de 1,5 °C",
-        "from": "Extrapolé depuis",
-        "reach": "1,5 °C atteint vers",
-        "warming": "Réchauffement (tendance)",
-        "month": "Mois",
-        "anomaly": "Anomalie",
-        "source": "Données : ERA5 / Copernicus C3S (Climate Pulse) · Méthode : C3S Global Temperature Trend Monitor",
-        "prelim": "provisoire",
-    },
-    "en": {
-        "title": "Global warming and the 1.5 °C threshold",
-        "ylabel": "Anomaly vs 1850-1900 (°C)",
-        "ipcc": "IPCC projections (SR15)",
-        "likely": "IPCC 1.5 °C likely range (2030-2052)",
-        "series": "ERA5 monthly anomaly",
-        "window": "30-year window",
-        "trend": "30-year linear trend",
-        "crossing": "1.5 °C reached",
-        "from": "Extrapolated from",
-        "reach": "1.5 °C reached around",
-        "warming": "Warming (trend)",
-        "month": "Month",
-        "anomaly": "Anomaly",
-        "source": "Data: ERA5 / Copernicus C3S (Climate Pulse) · Method: C3S Global Temperature Trend Monitor",
-        "prelim": "preliminary",
-    },
-}
-
 # --------------------------------------------------------------------------
 # Contrôles qualité avant publication
 # --------------------------------------------------------------------------
