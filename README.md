@@ -1,12 +1,22 @@
+<div align="center">
+
+[![Mise à jour mensuelle](https://github.com/Alliages/suivi-rechauffement-global/actions/workflows/mise-a-jour.yml/badge.svg)](https://github.com/Alliages/suivi-rechauffement-global/actions/workflows/mise-a-jour.yml)
+[![Version](https://img.shields.io/badge/version-1.3.1-af1d29.svg)](CHANGELOG.md)
+[![Licence](https://img.shields.io/github/license/Alliages/suivi-rechauffement-global.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-3776ab.svg)](requirements.txt)
+[![Page](https://img.shields.io/badge/page-en%20ligne-ff6800.svg)](https://alliages.github.io/suivi-rechauffement-global/)
+
 # Suivi du réchauffement mondial et du seuil de 1,5 °C
 
-Page : **https://alliages.github.io/suivi-rechauffement-global/**
+**Le réchauffement mondial face au seuil de 1,5 °C, suivi mois par mois.**
 
-Cet outil reprend la méthode du [Global Temperature Trend Monitor](https://apps.climate.copernicus.eu/global-temperature-trend-monitor/) de Copernicus C3S, dont l'application officielle n'est plus mise à jour depuis août 2026. Il est réimplémenté pour se mettre à jour **automatiquement chaque mois** et ajoute des exports : données, images, GIF animés et script PowerShell.
+Outil libre qui reprend la méthode du [Global Temperature Trend Monitor](https://apps.climate.copernicus.eu/global-temperature-trend-monitor/) de Copernicus C3S, dont l'application officielle n'est plus mise à jour depuis août 2026. Il est réimplémenté pour se mettre à jour **automatiquement chaque mois** et ajoute des exports : données, images, GIF animés et script PowerShell.
 
-Outil non officiel, ni produit ni approuvé par Copernicus.
+[Page en ligne](https://alliages.github.io/suivi-rechauffement-global/) · [Méthode](#méthode) · [Organisation](#organisation) · [Mise à jour](#mise-à-jour) · [Exports](#exports) · [Développement local](#développement-local) · [Roadmap](ROADMAP.md) · [Changelog](CHANGELOG.md)
 
-Version : **1.3.0** ([CHANGELOG](CHANGELOG.md))
+</div>
+
+> Outil non officiel, ni produit ni approuvé par Copernicus.
 
 ## Méthode
 
@@ -107,16 +117,17 @@ Pour tester hors ligne : `python tests/make_fixture.py /tmp/fx`, puis `--daily /
 
 Détail dans [ROADMAP.md](ROADMAP.md).
 
-- rien de particulier
-
 ## Sources et crédits
 
 - ERA5 : Hersbach et al. (2020), *Q. J. R. Meteorol. Soc.*, doi:10.1002/qj.3803. Copernicus Climate Change Service / ECMWF.
 - Méthode : C3S Global Temperature Trend Monitor (notebook « source code »).
 - Projections : GIEC, rapport spécial 1,5 °C (SR15), 2018.
+- Icônes : Tabler Icons (licence MIT).
 - Plotly.js (licence MIT), embarqué dans `vendor/`.
 
 ## Conventions de la page
 
 - `app.js` utilise `innerHTML` uniquement sur ses propres libellés FR/EN ou sur des données générées par le pipeline (`data/series.json`, `data/content.json`). Aucune entrée utilisateur n'y est injectée. La CSP de `index.html` n'autorise que les scripts servis par le site lui-même : pas de script inline dans la page, pas de `onclick=`, pas de CDN.
 - Tous les réglages viennent de `config.py` via `series.json` (`config.colors`, `x_view`, `grid_step`, `export_size`, `days_per_month`, `meta.trend_years`, `meta.monthly_offsets`), sans valeur recopiée dans la page ; `data/content.json` porte les textes des onglets.
+
+Version : **1.3.1** ([CHANGELOG](CHANGELOG.md))
