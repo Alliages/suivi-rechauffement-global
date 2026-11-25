@@ -57,7 +57,7 @@ param(
     [string]$Dossier = '.\exports',             # dossier de sortie
     [string]$SiteUrl = 'https://alliages.github.io/suivi-rechauffement-global',
     # Code Python téléchargé puis exécuté : épinglé sur un commit (un tag peut être déplacé)
-    [string]$RawUrl = 'https://raw.githubusercontent.com/Alliages/suivi-rechauffement-global/c5874744f2aa0edb49c5b0d74a4a9751b7d4fbc5'
+    [string]$RawUrl = 'https://raw.githubusercontent.com/Alliages/suivi-rechauffement-global/6cc75749b1186d75b2cdb5c4de42c601a7690ce4'
 )
 
 # Mêmes versions que requirements.txt
