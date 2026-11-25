@@ -31,7 +31,7 @@ def make_daily(path: Path, seed: int = 0) -> None:
     df = pd.DataFrame({"date": dates.strftime("%Y-%m-%d"), "2t": (clim + ano).round(3),
                        "clim_91-20": clim.round(3), "ano_91-20": ano.round(3),
                        "status": status})
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write("# Données SYNTHÉTIQUES pour tests\n")
         df.to_csv(f, index=False)
 

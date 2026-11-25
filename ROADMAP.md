@@ -1,6 +1,6 @@
 # ROADMAP
 
-Version en cours : 1.2.7. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
+Version en cours : 1.3.0. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
 
 ## À faire
 
@@ -37,3 +37,4 @@ Référence : capture de l'application Copernicus (Global Temperature Trend Moni
 - 1.2.5 : bandeau d'en-tête rouge foncé pleine largeur avec le favicon en logo.
 - 1.2.6 : contour blanc de 3 px autour du logo du bandeau.
 - 1.2.7 : proportions de l'hexagone du logo corrigées, date d'après réduite, liens des onglets en rouge foncé.
+- 1.3.0 : audit appliqué : planning du 5 effectif, droits CI par job, CSP, `app.js`/`style.css`, validation des paramètres, Dependabot + pip-audit, Pillow 13, animations FR/EN, rendu sans recréer la figure, FAQ dans `content_src.json`, tests bout en bout.

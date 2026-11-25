@@ -36,7 +36,9 @@ param(
 
     # ---- Génération locale (ignorés sans -Local) --------------------------
     [switch]$Local,                             # générer sur ce poste avec Python
+    [ValidatePattern('^\d{4}-(0[1-9]|1[0-2])$')]
     [string]$Debut,                             # premier mois AAAA-MM (vide = défaut)
+    [ValidatePattern('^\d{4}-(0[1-9]|1[0-2])$')]
     [string]$Fin,                               # dernier mois AAAA-MM (vide = dernier dispo)
     [ValidateRange(1, 120)]
     [int]$Pas = 1,                              # un mois sur N
@@ -44,16 +46,22 @@ param(
     [double]$Fps = 8,                           # images par seconde du GIF
     [ValidateSet('png', 'svg', 'jpg', 'pdf')]
     [string]$Format = 'png',                    # format des images
-    [int]$Largeur = 1280,                       # pixels
+    [ValidateRange(100, 4000)]
+    [int]$Largeur = 1280,                       # pixels (bornes : config.SIZE_BOUNDS_PX)
+    [ValidateRange(100, 4000)]
     [int]$Hauteur = 720,                        # pixels
     [ValidateSet('fr', 'en')]
-    [string]$Langue = 'fr',
+    [string]$Langue = 'fr',                     # aussi utilisée pour les fichiers précalculés
 
     # ---- Emplacements -----------------------------------------------------
     [string]$Dossier = '.\exports',             # dossier de sortie
     [string]$SiteUrl = 'https://alliages.github.io/suivi-rechauffement-global',
-    [string]$RawUrl = 'https://raw.githubusercontent.com/Alliages/suivi-rechauffement-global/v1.2.0'
+    # Code Python téléchargé puis exécuté : épinglé sur un commit (un tag peut être déplacé)
+    [string]$RawUrl = 'https://raw.githubusercontent.com/Alliages/suivi-rechauffement-global/c5874744f2aa0edb49c5b0d74a4a9751b7d4fbc5'
 )
+
+# Mêmes versions que requirements.txt
+$Paquets = @('matplotlib==3.10.7', 'pillow==13.0.0')
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'        # Invoke-WebRequest beaucoup plus rapide
@@ -68,7 +76,7 @@ $Dossier = (Resolve-Path $Dossier).Path
 # Mode 1 : téléchargement des fichiers précalculés
 # ==========================================================================
 # Réglages passés explicitement (pour prévenir s'ils sont ignorés sans -Local)
-$Custom = @('Debut', 'Fin', 'Pas', 'Fps', 'Format', 'Largeur', 'Hauteur', 'Langue') |
+$Custom = @('Debut', 'Fin', 'Pas', 'Fps', 'Format', 'Largeur', 'Hauteur') |
     Where-Object { $PSBoundParameters.ContainsKey($_) }
 
 function Get-Precalcule {
@@ -78,14 +86,20 @@ function Get-Precalcule {
                        ". Ajoute -Local pour les appliquer.")
     }
     $manifest = Invoke-RestMethod "$SiteUrl/exports/manifest.json"
+    # Clé avec langue (1.3.0+), sinon ancienne clé (français)
+    function Get-Fichier($anim, $kind) {
+        $name = $manifest."$($anim)_$($Langue)_$kind"
+        if (-not $name) { $name = $manifest."$($anim)_$kind" }
+        return $name
+    }
     foreach ($anim in $Animations) {
         if ($Mode -in 'gif', 'both') {
-            $name = $manifest."$($anim)_gif"
+            $name = Get-Fichier $anim 'gif'
             Write-Host "Téléchargement de $name..."
             Invoke-WebRequest "$SiteUrl/exports/$name" -OutFile (Join-Path $Dossier $name)
         }
         if ($Mode -in 'frames', 'both') {
-            $zip = $manifest."$($anim)_zip"
+            $zip = Get-Fichier $anim 'zip'
             $tmp = Join-Path $env:TEMP $zip
             Write-Host "Téléchargement de $zip..."
             Invoke-WebRequest "$SiteUrl/exports/$zip" -OutFile $tmp
@@ -125,18 +139,23 @@ function Get-Pipeline {
     return $dir
 }
 
+function Get-VenvPython($venv) {
+    $win = Join-Path $venv 'Scripts\python.exe'
+    if (Test-Path $win) { return $win }
+    return (Join-Path $venv 'bin/python')      # macOS / Linux
+}
+
 function Invoke-Local {
-    $py = Find-Python
     $venv = Join-Path $PSScriptRoot '.venv'
-    $venvPy = Join-Path $venv 'Scripts\python.exe'
-    if (-not (Test-Path $venvPy)) { $venvPy = Join-Path $venv 'bin/python' }   # macOS / Linux
+    $venvPy = Get-VenvPython $venv
     if (-not (Test-Path $venvPy)) {
+        $py = Find-Python
         Write-Host "Création de l'environnement Python (une seule fois)..."
         $pyArgs = $py.Args
         & $py.Exe @pyArgs -m venv $venv
-        $venvPy = if (Test-Path (Join-Path $venv 'Scripts\python.exe')) { Join-Path $venv 'Scripts\python.exe' } else { Join-Path $venv 'bin/python' }
+        $venvPy = Get-VenvPython $venv
         & $venvPy -m pip install --quiet --upgrade pip
-        & $venvPy -m pip install --quiet matplotlib pillow
+        & $venvPy -m pip install --quiet @Paquets
     }
     $pipeline = Get-Pipeline
 

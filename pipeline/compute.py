@@ -19,18 +19,20 @@ def read_daily(path) -> pd.DataFrame:
     raw = pd.read_csv(path, comment="#")
     cols = {c.lower().strip(): c for c in raw.columns}
 
-    def find(prefix):
+    def find(prefix, required=True):
         for low, orig in cols.items():
             if low.startswith(prefix):
                 return orig
-        raise ValueError(f"Colonne « {prefix}* » introuvable : {list(raw.columns)}")
+        if required:
+            raise ValueError(f"Colonne « {prefix}* » introuvable : {list(raw.columns)}")
+        return None
 
     df = pd.DataFrame({
         "date": pd.to_datetime(raw[find("date")]),
         "t2m": raw[find("2t")].astype(float),
         "anomaly_9120": raw[find("ano")].astype(float),
     })
-    status_col = next((o for l, o in cols.items() if l.startswith("status")), None)
+    status_col = find("status", required=False)
     df["preliminary"] = (raw[status_col].astype(str).str.upper() != "FINAL"
                          if status_col else False)
     return df.dropna(subset=["t2m", "anomaly_9120"]).sort_values("date")

@@ -6,7 +6,7 @@ Cet outil reprend la méthode du [Global Temperature Trend Monitor](https://apps
 
 Outil non officiel, ni produit ni approuvé par Copernicus.
 
-Version : **1.2.7** ([CHANGELOG](CHANGELOG.md))
+Version : **1.3.0** ([CHANGELOG](CHANGELOG.md))
 
 ## Méthode
 
@@ -24,23 +24,30 @@ Version : **1.2.7** ([CHANGELOG](CHANGELOG.md))
 ## Organisation
 
 ```
-pipeline/config.py    toutes les constantes (sources, méthode, contrôles)
-pipeline/compute.py   moyennes mensuelles, anomalies, tendances, contrôles qualité
-pipeline/main.py      téléchargement → calculs → data/ → _site/
-pipeline/render.py    images PNG/SVG/JPG/PDF et GIF (matplotlib)
-index.html            page (Plotly.js embarqué dans vendor/)
-data/                 données calculées, versionnées à chaque mise à jour
-scripts/export.ps1    export d'images / GIF depuis Windows
-tests/                tests de la méthode + données synthétiques
+pipeline/config.py        toutes les constantes (sources, méthode, contrôles, rendu, palette)
+pipeline/compute.py       moyennes mensuelles, anomalies, tendances, contrôles qualité
+pipeline/main.py          téléchargement → calculs → data/ → _site/
+pipeline/download.py      téléchargements HTTP
+pipeline/content.py       assemble data/content.json depuis content_src.json
+pipeline/content_src.json textes des onglets FAQ, Glossaire, Code source (FR/EN)
+pipeline/render.py        images PNG/SVG/JPG/PDF et GIF (matplotlib)
+index.html                structure de la page
+app.js, style.css         script et styles de la page (Plotly.js embarqué dans vendor/)
+data/                     données calculées, versionnées à chaque mise à jour
+scripts/export.ps1        export d'images / GIF depuis Windows
+tests/                    tests de la méthode, du pipeline et du rendu + données synthétiques
 ```
+
+Pour modifier un texte de la FAQ ou du glossaire, éditer `pipeline/content_src.json` ; les champs `{offsets_table}` et `{annual_offset}` sont remplis depuis `config.py`.
 
 ## Mise à jour
 
-Tout est automatique : le workflow **Mise à jour mensuelle** tourne les 4, 8 et 15 de chaque mois. Il télécharge les données, contrôle leur cohérence, commite `data/` si quelque chose a changé, régénère images et GIF, puis publie la page.
+Tout est automatique : le workflow **Mise à jour mensuelle** tourne le 5 de chaque mois. Il télécharge les données, contrôle leur cohérence, commite `data/` si quelque chose a changé, régénère images et GIF, puis publie la page.
 
 - **Lancer à la main :** onglet *Actions* → *Mise à jour mensuelle* → *Run workflow*.
 - **En cas d'échec :** GitHub envoie un e-mail. Les contrôles qualité (valeurs hors bornes, mois disparus, révision d'un mois final de plus de 0,05 °C) bloquent la publication, et la page précédente reste en ligne.
 - **Si Copernicus change une URL ou un nom de colonne :** il suffit de modifier `pipeline/config.py`. Le lecteur de colonnes de `compute.py` cherche les préfixes `date`, `2t`, `ano` et `status`.
+- **Dépendances :** Dependabot propose chaque mois les mises à jour (pip et actions) en pull request ; le job `audit` du workflow (`pip-audit`) signale les vulnérabilités connues sans bloquer la publication.
 - **Dépôt inactif :** GitHub suspend les tâches planifiées après 60 jours sans activité. Les commits mensuels de données suffisent normalement à l'éviter. Si la mise à jour s'arrête, il suffit de réactiver le workflow dans l'onglet *Actions*.
 
 ### Mise en route (une seule fois)
@@ -75,10 +82,10 @@ Sur la page :
 | `-Fps` | images par seconde du GIF | 8 |
 | `-Format` | `png`, `svg`, `jpg`, `pdf` | `png` |
 | `-Largeur`, `-Hauteur` | pixels | 1280 × 720 |
-| `-Langue` | `fr`, `en` | `fr` |
+| `-Langue` | `fr`, `en` (aussi pour les fichiers précalculés) | `fr` |
 | `-Dossier` | dossier de sortie | `.\exports` |
 
-Le script fonctionne aussi seul, sans cloner le dépôt : il télécharge alors `render.py` depuis GitHub. Si Windows bloque son exécution, lancer `powershell -ExecutionPolicy Bypass -File .\export.ps1`.
+Le script fonctionne aussi seul, sans cloner le dépôt : il télécharge alors `render.py`, `config.py` et `download.py` depuis le commit indiqué dans `-RawUrl` (SHA fixe, à mettre à jour après chaque version). Si Windows bloque son exécution, lancer `powershell -ExecutionPolicy Bypass -File .\export.ps1`.
 
 Animations :
 - **courbe** : les anomalies mensuelles se tracent mois après mois ;
@@ -110,7 +117,7 @@ Détail dans [ROADMAP.md](ROADMAP.md).
 - Projections : GIEC, rapport spécial 1,5 °C (SR15), 2018.
 - Plotly.js (licence MIT), embarqué dans `vendor/`.
 
-## Conventions index.html
+## Conventions de la page
 
-- `index.html` utilise `innerHTML` uniquement sur des contenus statiques du fichier lui-même (libellés FR/EN, FAQ, glossaire) ou des données générées par le pipeline (`data/series.json`, `data/content.json`). Aucune entrée utilisateur n'y est injectée.
-- La palette, les bornes de l'axe x et le pas de grille arrivent par `series.json` (`config.colors`, `config.x_view`, `config.grid_step`) avec des valeurs par défaut dans la page ; `data/content.json` porte les textes des onglets.
+- `app.js` utilise `innerHTML` uniquement sur ses propres libellés FR/EN ou sur des données générées par le pipeline (`data/series.json`, `data/content.json`). Aucune entrée utilisateur n'y est injectée. La CSP de `index.html` n'autorise que les scripts servis par le site lui-même : pas de script inline dans la page, pas de `onclick=`, pas de CDN.
+- Tous les réglages viennent de `config.py` via `series.json` (`config.colors`, `x_view`, `grid_step`, `export_size`, `days_per_month`, `meta.trend_years`, `meta.monthly_offsets`), sans valeur recopiée dans la page ; `data/content.json` porte les textes des onglets.

@@ -19,16 +19,7 @@ import pandas as pd
 import config as C
 from compute import compute_trends, monthly_from_daily, read_daily, validate
 import content as Content
-from download import http_get
-
-
-# --------------------------------------------------------------------------
-# Téléchargements
-# --------------------------------------------------------------------------
-def download(url: str, dest) -> None:
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_bytes(http_get(url, timeout=120))
-    print(f"Téléchargé : {url}")
+from download import download
 
 
 def ensure_ipcc() -> None:
@@ -60,8 +51,8 @@ def write_outputs(monthly: pd.DataFrame, trends: pd.DataFrame) -> dict:
         "monthly_offsets": C.MONTHLY_OFFSETS,
         "trend_years": C.TREND_YEARS,
     }
-    C.META_JSON.write_text(json.dumps(meta, indent=2, ensure_ascii=False))
-    C.CONTENT_JSON.write_text(json.dumps(Content.build(), separators=(",", ":")))
+    C.META_JSON.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+    C.CONTENT_JSON.write_text(json.dumps(Content.build(), separators=(",", ":")), encoding="utf-8")
 
     # Fichier unique pour la page (format colonnes, plus léger)
     series = {
@@ -70,12 +61,13 @@ def write_outputs(monthly: pd.DataFrame, trends: pd.DataFrame) -> dict:
             "x_range": C.PLOT_X_RANGE, "y_range": C.PLOT_Y_RANGE,
             "likely_range": C.IPCC_LIKELY_RANGE, "target": C.TARGET_WARMING,
             "x_view": C.X_VIEW, "grid_step": C.GRID_STEP, "colors": C.PAGE_COLORS,
+            "export_size": C.DEFAULT_SIZE_PX, "days_per_month": C.DAYS_PER_MONTH,
         },
         "monthly": monthly.to_dict(orient="list"),
         "trends": trends.to_dict(orient="list"),
         "ipcc": ipcc[["year", "min_t", "max_t"]].to_dict(orient="list"),
     }
-    C.SERIES_JSON.write_text(json.dumps(series, separators=(",", ":")))
+    C.SERIES_JSON.write_text(json.dumps(series, separators=(",", ":")), encoding="utf-8")
     return meta
 
 
@@ -84,7 +76,7 @@ def build_site() -> None:
     if C.SITE_OUT_DIR.exists():
         shutil.rmtree(C.SITE_OUT_DIR)
     C.SITE_OUT_DIR.mkdir(parents=True)
-    for nom in C.SITE_SRC_FILES:               # index.html et vendor/ (racine du dépôt)
+    for nom in C.SITE_SRC_FILES:
         src = C.ROOT_DIR / nom
         if src.is_dir():
             shutil.copytree(src, C.SITE_OUT_DIR / nom)
@@ -110,7 +102,7 @@ def main(argv=None) -> int:
     if a.daily:
         daily_path = a.daily
     else:
-        daily_path = C.CACHE_DIR / "era5_daily_series_2t_global.csv"
+        daily_path = C.DAILY_CACHE
         download(C.DAILY_SERIES_URL, daily_path)
     ensure_ipcc()
 

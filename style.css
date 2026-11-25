@@ -1,0 +1,110 @@
+:root {
+  --fg: #1d1d1f; --muted: #5f6368; --line: #e3e3e3; --bg: #fff; --card: #f7f6f4;
+  --accent: #af1d29; --orange: #ff6800;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+       color: var(--fg); background: var(--bg); }
+main { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
+section { margin-top: 20px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.15rem; margin: 0 0 10px; }
+.sub { color: var(--muted); margin: 0; }
+
+/* Bandeau */
+.topbar { background: var(--accent); color: #fff; }
+.topbar-inner { max-width: 1200px; margin: 0 auto; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand img { width: 42px; height: 42px; flex: none; }
+.brand .logo { width: 48px; height: 48px; flex: none; background: #fff;
+               clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+               display: grid; place-items: center; }
+.head-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.topbar h1 { font-size: 1.3rem; margin: 0; color: #fff; }
+.topbar #updated { color: rgba(255, 255, 255, .85); font-size: .8rem; }
+.lang { display: flex; gap: 6px; }
+.lang button { border: 1px solid var(--line); background: #fff; padding: 4px 10px;
+               cursor: pointer; font: inherit; border-radius: 6px; }
+.lang button[aria-pressed="true"] { background: var(--fg); color: #fff; }
+.topbar .lang button { background: transparent; color: #fff; border-color: rgba(255, 255, 255, .6); }
+.topbar .lang button[aria-pressed="true"] { background: #fff; color: var(--accent); border-color: #fff; }
+
+/* Synthèse et graphique */
+.synthese { margin: 20px 0 4px; max-width: 900px; }
+.synthese .quand { color: var(--orange); font-size: 1.25rem; margin: 0 0 8px; }
+.synthese p { margin: 7px 0; font-size: 1.05rem; }
+.synthese p.p1 { font-size: .85rem; margin: 4px 0 12px; }
+.synthese p.p1 strong.v { font-size: inherit; margin-left: 4px; }
+.synthese strong.v { font-size: 1.55rem; font-weight: 700; margin-left: 6px; vertical-align: -0.15rem; }
+.encart { border: 1px solid #f3b98d; border-radius: 10px; background: #fdf0e7;
+          padding: 10px 16px 8px; }
+.v-orange { color: var(--orange); }
+.v-red { color: var(--accent); }
+.prelim { color: var(--muted); font-size: .8rem; font-weight: 400; }
+.opts { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 0 0 2px;
+        color: var(--muted); font-size: .8rem; }
+.opts input[type=checkbox] { accent-color: var(--accent); }
+#chart { width: 100%; height: 640px; }
+.load-error { color: var(--accent); font-weight: 600; }
+
+/* Onglets */
+.tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line); margin: 26px 0 20px; }
+.tabs button { border: none; background: none; padding: 8px 14px; font: inherit; cursor: pointer;
+               color: var(--muted); border-radius: 6px 6px 0 0; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tabs button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.tabs button:hover { color: var(--accent); }
+.tabs button svg { width: 1rem; height: 1rem; vertical-align: -0.15rem; margin-right: 6px; }
+.tabpanel[hidden] { display: none; }
+.tabpanel a { color: var(--accent); }
+.intro { max-width: 900px; }
+.intro h2 { color: var(--orange); font-size: 1.25rem; margin: 0 0 6px; }
+.intro p { margin: 0; font-size: 1rem; line-height: 1.55; }
+
+/* Glossaire */
+.glossary { display: flex; gap: 24px; flex-wrap: wrap; }
+.glossary nav { width: 260px; }
+.glossary nav button { display: block; width: 100%; text-align: left; border: none; background: none;
+               padding: 6px 8px; font: inherit; cursor: pointer; border-radius: 6px; color: var(--fg); }
+.glossary nav button[aria-current="true"] { background: #fdf0e7; color: var(--orange); font-weight: 600; }
+.glossary .def { flex: 1; min-width: 280px; }
+
+/* FAQ */
+.faq { list-style: none; padding: 0; max-width: 900px; }
+.faq li { margin-bottom: 16px; }
+.faq h3 { font-size: 1rem; margin: 0 0 4px; cursor: pointer; }
+.faq h3::before { content: "\25BE  "; color: var(--accent); }
+.faq p { margin: 0; line-height: 1.5; }
+.faq li.closed > div { display: none; }
+.faq li.closed h3::before { content: "\25B6  "; }
+.faq li > div { line-height: 1.5; }
+.faq li > div p, .faq li > div ul { margin: 0 0 8px; }
+.faq li > div ul { padding-left: 20px; }
+.faq table { border-collapse: collapse; margin: 10px 0 4px; font-size: .9rem; }
+.faq th, .faq td { border: 1px solid var(--line); padding: 4px 8px; text-align: center; }
+.faq th { background: #fdf0e7; }
+.faq caption { caption-side: bottom; color: var(--muted); font-size: .85rem; margin-top: 6px; }
+
+/* Après .faq li : l'écart de 6 px l'emporte (rendu d'origine) */
+.tabpanel li { margin-bottom: 6px; }
+
+/* Exports, méthode, pied de page */
+.exports { display: flex; flex-wrap: wrap; gap: 8px; max-width: 440px; }
+.exports button, .exports a { border: 1px solid var(--line); background: #fff; color: var(--fg);
+       padding: 7px 12px; border-radius: 8px; cursor: pointer; font: inherit;
+       text-decoration: none; font-size: .9rem; }
+.exports button:hover, .exports a:hover { border-color: var(--fg); }
+.exports .group { color: var(--muted); font-size: .85rem; width: 100%; margin-top: 6px; }
+.method { color: #333; max-width: 850px; }
+.method li { margin-bottom: 4px; }
+footer { margin-top: 18px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line);
+         padding-top: 12px; }
+footer .credit { margin: 0 0 6px; max-width: 900px; }
+footer .mention { display: block; }
+footer a { color: inherit; }
+
+@media (max-width: 700px) {
+  #chart { height: 460px; }
+  .topbar-inner { flex-direction: column; align-items: flex-start; }
+  .head-right { align-items: flex-start; text-align: left; }
+  .synthese strong.v { font-size: 1.3rem; }
+}

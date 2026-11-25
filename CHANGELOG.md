@@ -2,6 +2,17 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.3.0 — 2026-11-25
+
+Audit appliqué (sécurité, simplicité, rapidité, lisibilité).
+
+- **Planning :** le workflow tourne bien le 5 du mois uniquement (cron `23 5 5 * *`). La 1.2.2 l'annonçait mais n'avait pas modifié le workflow.
+- **Sécurité :** droits du workflow limités par job ; CSP sur la page (`script-src 'self'`) ; `export.ps1` télécharge `render.py` depuis un commit fixé (SHA) et installe des versions épinglées ; paramètres validés (`--debut`/`--fin` au format AAAA-MM, fps, pas, taille) dans `render.py` et `export.ps1` ; Dependabot (pip + actions) et `pip-audit` dans le CI (non bloquant) ; Pillow 13.0.0 et pytest 9.0.3 (vulnérabilités connues des versions précédentes).
+- **Page :** CSS et JS sortis dans `style.css` et `app.js` ; message si les données ne se chargent pas ; ancre inconnue → onglet Application ; doublons CSS supprimés ; mention C3S traduite en français ; plus aucune valeur recopiée de `config.py` (taille d'export, 30 ans, écarts 0,80-0,96 °C, palette, axes) : tout passe par `series.json`.
+- **Exports :** GIF et ZIP aussi en anglais (`courbe_en.gif`…) ; anciennes clés du manifeste conservées. Le rendu ne recrée plus la figure à chaque image (environ 20 % plus rapide, images identiques au pixel près).
+- **Pipeline :** textes de la FAQ dans `pipeline/content_src.json` (éditables, une entrée par ligne) ; `ANNUAL_OFFSET`, mise en page et paramètres des animations dans `config.py` ; encodage UTF-8 explicite (le jeu de test hors ligne plantait sous Windows) ; le commit mensuel inclut `content.json`/`series.json` quand seuls eux changent.
+- **Tests :** 17 tests, dont un bout en bout (pipeline + rendu) sur données synthétiques.
+
 ## 1.2.7 — 2026-11-25
 
 - Logo du bandeau : hexagone blanc aux bonnes proportions (angles latéraux à 6,7 %/93,3 %). Date « Données jusqu'à / mise à jour le » réduite. Liens des onglets en rouge foncé.

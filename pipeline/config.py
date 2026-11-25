@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT_DIR / "data"            # données versionnées (petites)
 CACHE_DIR = ROOT_DIR / ".cache"         # téléchargements bruts (non versionnés)
-SITE_SRC_FILES = ["index.html", "vendor", "favicon.svg", "VERSION"]  # page web, favicon et version, à la racine du dépôt
+SITE_SRC_FILES = ["index.html", "app.js", "style.css", "vendor", "favicon.svg", "VERSION"]
 SITE_OUT_DIR = ROOT_DIR / "_site"       # page assemblée, publiée sur GitHub Pages
 
 MONTHLY_CSV = DATA_DIR / "era5_global_monthly.csv"
@@ -22,6 +22,8 @@ IPCC_CSV = DATA_DIR / "ipcc_sr15.csv"
 META_JSON = DATA_DIR / "meta.json"
 SERIES_JSON = DATA_DIR / "series.json"  # tout-en-un lu par la page web
 CONTENT_JSON = DATA_DIR / "content.json"  # texte des onglets (FAQ, glossaire…) lu par la page
+CONTENT_SRC = ROOT_DIR / "pipeline" / "content_src.json"  # source éditable de content.json
+DAILY_CACHE = CACHE_DIR / "era5_daily_series_2t_global.csv"
 
 # --------------------------------------------------------------------------
 # Sources de données (publiques, sans compte)
@@ -39,6 +41,8 @@ IPCC_URL = (
     "https://apps.climate.copernicus.eu/global-temperature-trend-monitor/"
     "ipcc-projections-sr15.csv"
 )
+USER_AGENT = "suivi-rechauffement-global"
+HTTP_TIMEOUT = 120        # secondes
 
 # --------------------------------------------------------------------------
 # Méthode (reprise du notebook C3S « Global temperature trend monitor »)
@@ -48,6 +52,7 @@ IPCC_URL = (
 # bulletin climatique C3S, valeurs reprises du notebook officiel.
 MONTHLY_OFFSETS = [0.96, 0.96, 0.95, 0.91, 0.87, 0.83,
                    0.80, 0.80, 0.81, 0.85, 0.89, 0.93]
+ANNUAL_OFFSET = 0.88      # écart annuel (OMM), cité dans la FAQ
 
 TREND_YEARS = 30          # longueur de la fenêtre de tendance
 WINDOW_MONTHS = TREND_YEARS * 12 + 1   # 361 valeurs, comme le notebook
@@ -64,13 +69,28 @@ IPCC_YEARS = (1970, 2062)
 IPCC_LIKELY_RANGE = ("2030-01-01", "2052-12-31")   # « likely » GIEC à 1,5 °C
 X_VIEW = ("1950-01-01", "2055-01-01")              # axe x de la page web
 GRID_STEP = 0.5                                    # grille horizontale (°C)
+DAYS_PER_MONTH = 30.4375                           # prolongement des tendances (Python et page)
+LANGS = ("fr", "en")
 
 # --------------------------------------------------------------------------
-# Rendu Python (render.py)
+# Rendu Python (render.py) ; DEFAULT_SIZE_PX sert aussi aux exports de la page
 # --------------------------------------------------------------------------
 DEFAULT_SIZE_PX = (1280, 720)
+SIZE_BOUNDS_PX = (100, 4000)  # tailles acceptées en ligne de commande
 DPI = 100
 LAST_FRAME_HOLD_MS = 2500     # pause sur la dernière image du GIF
+GIF_COLORS = 64               # palette adaptative : GIF nettement plus léger
+# Exports précalculés chaque mois (render_defaults)
+DEFAULT_ANIMATIONS = {
+    "courbe": dict(debut="1971-01", pas=3, fps=12),
+    "extrapolation": dict(debut=f"{FIRST_TREND_YEAR}-12", pas=1, fps=10),
+}
+# Mise en page en fractions de la figure
+RENDER_LAYOUT = {
+    "axes": [0.07, 0.12, 0.66, 0.76],
+    "info_xy": (0.755, 0.40), "title_xy": (0.07, 0.94), "source_xy": (0.07, 0.03),
+    "title_size": 16, "info_size": 12, "source_size": 8, "legend_size": 10, "tick_size": 10,
+}
 RENDER_COLORS = {
     "ipcc": "#f7d2b8",        # enveloppe GIEC (pêche, comme l'original)
     "series": "#e8762c",      # anomalies observées
@@ -80,6 +100,7 @@ RENDER_COLORS = {
     "target": "#333333",
     "grid": "#9a9a9a",
     "text": "#222222",
+    "source": "#555555",
 }
 # La palette de la page (index.html) passe par series.json ; les variantes
 # « _transparent » sont écrites en rgba/rgb pour Plotly.

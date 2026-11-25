@@ -1,0 +1,11 @@
+# Propositions mensuelles de mise à jour (pull requests), à valider à la main.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

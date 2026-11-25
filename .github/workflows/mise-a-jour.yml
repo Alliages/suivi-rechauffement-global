@@ -1,24 +1,31 @@
 # Mise à jour automatique : données ERA5, images, GIF, publication GitHub Pages.
 #
 # Déclenchement :
-#   - le 4, le 8 et le 15 de chaque mois (le mois précédent devient complet
-#     vers le 3 ; les passages suivants prennent en compte les révisions) ;
+#   - le 5 de chaque mois (le mois précédent est complet dans Climate Pulse
+#     vers le 3), comme l'application officielle C3S ;
 #   - à la main : onglet Actions > « Mise à jour mensuelle » > Run workflow ;
 #   - à chaque modification de la page ou du pipeline sur main.
 name: Mise à jour mensuelle
 
 on:
   schedule:
-    - cron: "23 5 4,8,15 * *"
+    - cron: "23 5 5 * *"
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["index.html", "vendor/**", "pipeline/**", "requirements.txt", ".github/workflows/**"]
+    paths:
+      - "index.html"
+      - "app.js"
+      - "style.css"
+      - "favicon.svg"
+      - "VERSION"
+      - "vendor/**"
+      - "pipeline/**"
+      - "requirements.txt"
+      - ".github/workflows/**"
 
 permissions:
-  contents: write     # commit des données
-  pages: write        # publication
-  id-token: write
+  contents: read
 
 concurrency:
   group: mise-a-jour
@@ -27,6 +34,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write     # commit des données
     steps:
       # Épinglées par SHA de commit (supply chain) ; le commentaire garde la version.
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -47,11 +56,15 @@ jobs:
         run: python pipeline/main.py --site --render
 
       - name: Commit des données si elles ont changé
+        # meta.json et series.json portent l'heure de génération : on les
+        # compare sans ce champ pour ne pas commiter à chaque passage.
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/
-          if git diff --cached --quiet -- data/era5_global_monthly.csv data/trends.csv data/ipcc_sr15.csv; then
+          sans_heure() { jq -S 'del(.meta.generated_at, .generated_at)' "$@"; }
+          if git diff --cached --quiet -- data/ ':(exclude)data/meta.json' ':(exclude)data/series.json' \
+             && diff -q <(git show HEAD:data/series.json | sans_heure) <(sans_heure data/series.json) >/dev/null; then
             echo "Pas de nouvelles données."
           else
             git commit -m "Données ERA5 jusqu'à $(jq -r .last_month data/meta.json)"
@@ -62,9 +75,24 @@ jobs:
         with:
           path: _site
 
+  # Vulnérabilités connues des dépendances : signalées sans bloquer la publication
+  # (Dependabot propose ensuite la montée de version).
+  audit:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit==2.9.0 && pip-audit -r requirements.txt
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

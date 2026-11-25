@@ -22,3 +22,5 @@ def test_offsets_table_tracks_config():
     assert f"<td>{MONTHLY_OFFSETS[0]:.2f}</td>" in block
     assert "<td>0.88</td>" in block
     assert "{offsets_table}" not in block and "{offsets_table}" not in out["en"]["faq"][4]["a"]
+    assert "écart constant de 0,88 °C" in block
+    assert "offset of 0.88 °C" in out["en"]["faq"][4]["a"]
