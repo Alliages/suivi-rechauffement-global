@@ -3,58 +3,67 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#af1d29">
+<meta name="color-scheme" content="light">
 <!-- 'unsafe-inline' pour les styles seulement : Plotly injecte ses propres styles -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Suivi du réchauffement mondial · seuil de 1,5 °C</title>
 <meta name="description" content="Suivi mensuel du réchauffement mondial (ERA5, Copernicus) et estimation de la date d'atteinte de +1,5 °C par extrapolation de la tendance sur 30 ans.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="style.css">
-<script src="vendor/plotly-basic.min.js"></script>
+<script src="vendor/plotly-basic.min.js" defer></script>
 </head>
 <body>
+<a class="skip" href="#main" data-i18n="skip">Aller au contenu</a>
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
       <span class="logo"><img src="favicon.svg" alt="" width="42" height="42"></span>
-      <h1 data-i18n="title"></h1>
+      <h1 data-i18n="title">Suivi du réchauffement mondial et du seuil de 1,5&nbsp;°C</h1>
     </div>
     <div class="head-right">
       <div class="lang">
-        <button data-lang="fr" aria-pressed="true">FR</button>
-        <button data-lang="en" aria-pressed="false">EN</button>
+        <button type="button" data-lang="fr" lang="fr" aria-label="Français" aria-pressed="true">FR</button>
+        <button type="button" data-lang="en" lang="en" aria-label="English" aria-pressed="false">EN</button>
       </div>
-      <p class="sub" id="updated"></p>
+      <p class="sub" id="updated" aria-live="polite"></p>
     </div>
   </div>
 </header>
-<main>
-  <section class="synthese" id="synthese"></section>
+<main id="main" tabindex="-1">
+  <noscript><p class="load-error">Cette page nécessite JavaScript. / This page requires JavaScript.</p></noscript>
+  <section class="synthese" id="synthese" aria-live="polite"></section>
 
   <div class="opts">
-    <label><input type="checkbox" id="all-months"> <span data-i18n="allMonths"></span></label>
+    <label><input type="checkbox" id="all-months"> <span data-i18n="allMonths">un pas par mois sur le curseur</span></label>
   </div>
-  <div id="chart"></div>
+  <div id="chart" role="img" data-i18n-label="chartLabel" aria-describedby="synthese"></div>
+  <div class="stepper" id="stepper" hidden>
+    <label for="step-range" data-i18n="sliderLabel">Fin de la fenêtre de 30 ans</label>
+    <input type="range" id="step-range" min="0" max="0" step="1" value="0">
+    <output for="step-range" id="step-out"></output>
+  </div>
 
-  <div class="tabs" role="tablist" id="tabs">
-    <button role="tab" data-tab="apropos" aria-selected="true">
+  <div class="tabs" role="tablist" id="tabs" data-i18n-label="tabsLabel">
+    <button type="button" role="tab" id="tab-apropos" aria-controls="panel-apropos" data-tab="apropos" aria-selected="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2"/><path d="m7 14 3-3 2 2 3-3 2 2"/></svg>
-      <span data-i18n="tabAbout"></span>
+      <span data-i18n="tabAbout">Application</span>
     </button>
-    <button role="tab" data-tab="faq" aria-selected="false">
+    <button type="button" role="tab" id="tab-faq" aria-controls="panel-faq" data-tab="faq" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 14-3-3h-7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1zM14 15v2a1 1 0 0 1-1 1H6l-3 3V11a1 1 0 0 1 1-1h2"/></svg>
-      <span data-i18n="tabFaq"></span>
+      <span data-i18n="tabFaq">FAQ</span>
     </button>
-    <button role="tab" data-tab="glossaire" aria-selected="false">
+    <button type="button" role="tab" id="tab-glossaire" aria-controls="panel-glossaire" data-tab="glossaire" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 19H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h6a2 2 0 0 1 2 2 2 2 0 0 1 2-2h6a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-6a2 2 0 0 0-2 2 2 2 0 0 0-2-2M12 5v16M7 7h1M7 11h1M16 7h1M16 11h1M16 15h1"/></svg>
-      <span data-i18n="tabGlossary"></span>
+      <span data-i18n="tabGlossary">Glossaire</span>
     </button>
-    <button role="tab" data-tab="source" aria-selected="false">
+    <button type="button" role="tab" id="tab-source" aria-controls="panel-source" data-tab="source" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h3M12 15h7a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3"/><path d="M8 9V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4M11 6v.01M13 18v.01"/></svg>
-      <span data-i18n="tabSource"></span>
+      <span data-i18n="tabSource">Code source</span>
     </button>
   </div>
 
-  <div class="tabpanel" id="panel-apropos">
+  <div class="tabpanel" id="panel-apropos" role="tabpanel" aria-labelledby="tab-apropos">
     <section class="intro">
       <h2 data-i18n="introTitle"></h2>
       <p data-i18n="introText"></p>
@@ -63,15 +72,18 @@
     <section>
       <h2 data-i18n="exportsTitle"></h2>
       <div class="exports" id="exports">
-        <span class="group" data-i18n="exportsChart"></span>
-        <button data-export="png">PNG</button>
-        <button data-export="svg">SVG</button>
-        <span class="group" data-i18n="exportsData"></span>
-        <a href="data/era5_global_monthly.csv" download data-i18n="csvMonthly"></a>
-        <a href="data/trends.csv" download data-i18n="csvTrends"></a>
-        <a href="data/ipcc_sr15.csv" download data-i18n="csvIpcc"></a>
-        <a href="data/series.json" download>JSON</a>
-        <span class="group" data-i18n="exportsAnim" id="anim-group" hidden></span>
+        <div class="xgroup" role="group" aria-labelledby="g-chart">
+          <span class="group" id="g-chart" data-i18n="exportsChart"></span>
+          <button type="button" data-export="png" data-i18n-label="pngLabel">PNG</button>
+          <button type="button" data-export="svg" data-i18n-label="svgLabel">SVG</button>
+        </div>
+        <div class="xgroup" role="group" aria-labelledby="g-data">
+          <span class="group" id="g-data" data-i18n="exportsData"></span>
+          <a href="data/era5_global_monthly.csv" download data-i18n="csvMonthly"></a>
+          <a href="data/trends.csv" download data-i18n="csvTrends"></a>
+          <a href="data/ipcc_sr15.csv" download data-i18n="csvIpcc"></a>
+          <a href="data/series.json" download data-i18n-label="jsonLabel">JSON</a>
+        </div>
       </div>
     </section>
 
@@ -81,24 +93,24 @@
     </section>
   </div>
 
-  <div class="tabpanel" id="panel-faq" hidden>
+  <div class="tabpanel" id="panel-faq" role="tabpanel" aria-labelledby="tab-faq" hidden>
     <ul class="faq" id="faq-list"></ul>
   </div>
 
-  <div class="tabpanel" id="panel-glossaire" hidden>
+  <div class="tabpanel" id="panel-glossaire" role="tabpanel" aria-labelledby="tab-glossaire" hidden>
     <div class="glossary">
-      <nav><ul id="glossary-list"></ul></nav>
-      <div class="def"><div id="glossary-def"></div></div>
+      <div class="gnav" role="group" data-i18n-label="glossaryLabel"><ul id="glossary-list"></ul></div>
+      <div class="def"><div id="glossary-def" aria-live="polite"></div></div>
     </div>
   </div>
 
-  <div class="tabpanel" id="panel-source" hidden>
+  <div class="tabpanel" id="panel-source" role="tabpanel" aria-labelledby="tab-source" hidden>
     <div id="source-content" class="intro"></div>
   </div>
 
-  <footer id="footer"></footer>
 </main>
+<footer id="footer"></footer>
 
-<script src="app.js"></script>
+<script src="app.js" defer></script>
 </body>
 </html>

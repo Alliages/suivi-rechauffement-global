@@ -2,6 +2,17 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.4 — 2026-11-25
+
+Revue selon les Web Interface Guidelines (Vercel).
+
+- **Accessibilité :** lien d'évitement ; onglets ARIA complets (flèches, Début, Fin) ; FAQ en `<details>` (clavier, flèche de taille constante ouverte/fermée) ; curseur natif synchronisé avec celui de Plotly (alternative clavier) ; description du graphique ; zones dynamiques annoncées (`aria-live`) ; boutons FR/EN avec langue et nom accessibles ; pied de page hors de `<main>`.
+- **Chargement :** état « Chargement… », message d'erreur avec bouton « Réessayer », onglets utilisables sans données, états vides, `<noscript>`, scripts en `defer`.
+- **Formats :** mois via `Intl.DateTimeFormat`, virgule décimale dans le graphique, espaces insécables (°C, ponctuation française, guillemets), apostrophes typographiques, `translate="no"` sur les sigles.
+- **URL :** langue (`?lang=`), pas du curseur (`?m=`) et option « un pas par mois » (`?all=1`) dans l'URL ; historique et retour arrière pour les onglets ; langue mémorisée.
+- **Mobile et CSS :** marges et légende adaptées, glissement tactile du graphique désactivé, cibles tactiles agrandies, états `:hover`/`:focus-visible`, police en `rem`, `tabular-nums`, `theme-color`, `color-scheme`.
+- **Supprimé :** le groupe « Animations et images » (GIF, ZIP, PNG/SVG statiques) de l'onglet Application, et le code qui lisait `exports/manifest.json`. Le pipeline continue de générer ces fichiers.
+
 ## 1.3 — 2026-11-25
 
 - README réorganisé : badges (CI, version, licence, Python, page en ligne), titre et description en tête, capture d'écran de l'application, liens d'ancrage de navigation, puis sections inchangées (contenu repris de la 1.3.0).
