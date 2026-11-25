@@ -42,6 +42,7 @@
                  color: var(--muted); border-radius: 6px 6px 0 0; border-bottom: 3px solid transparent; margin-bottom: -2px; }
   .tabs button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
   .tabs button:hover { color: var(--accent); }
+  .tabs button svg { width: 1rem; height: 1rem; vertical-align: -0.15rem; margin-right: 6px; }
   .tabpanel[hidden] { display: none; }
   .intro { max-width: 900px; }
   .intro h2 { color: var(--orange); font-size: 1.25rem; margin: 0 0 6px; }
@@ -115,10 +116,22 @@
   <div id="chart"></div>
 
   <div class="tabs" role="tablist" id="tabs">
-    <button role="tab" data-tab="apropos" aria-selected="true" data-i18n="tabAbout"></button>
-    <button role="tab" data-tab="faq" aria-selected="false" data-i18n="tabFaq"></button>
-    <button role="tab" data-tab="glossaire" aria-selected="false" data-i18n="tabGlossary"></button>
-    <button role="tab" data-tab="source" aria-selected="false" data-i18n="tabSource"></button>
+    <button role="tab" data-tab="apropos" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2"/><path d="m7 14 3-3 2 2 3-3 2 2"/></svg>
+      <span data-i18n="tabAbout"></span>
+    </button>
+    <button role="tab" data-tab="faq" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 14-3-3h-7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1zM14 15v2a1 1 0 0 1-1 1H6l-3 3V11a1 1 0 0 1 1-1h2"/></svg>
+      <span data-i18n="tabFaq"></span>
+    </button>
+    <button role="tab" data-tab="glossaire" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 19H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h6a2 2 0 0 1 2 2 2 2 0 0 1 2-2h6a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-6a2 2 0 0 0-2 2 2 2 0 0 0-2-2M12 5v16M7 7h1M7 11h1M16 7h1M16 11h1M16 15h1"/></svg>
+      <span data-i18n="tabGlossary"></span>
+    </button>
+    <button role="tab" data-tab="source" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h3M12 15h7a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3"/><path d="M8 9V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4M11 6v.01M13 18v.01"/></svg>
+      <span data-i18n="tabSource"></span>
+    </button>
   </div>
 
   <div class="tabpanel" id="panel-apropos">

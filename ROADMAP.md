@@ -1,6 +1,6 @@
 # ROADMAP
 
-Version en cours : 1.2.3. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
+Version en cours : 1.2.4. Seule liste de suivi du projet. Les idées s'ajoutent ici ; rien n'est codé sans « Lance » / « GO ».
 
 ## À faire
 
@@ -33,3 +33,4 @@ Référence : capture de l'application Copernicus (Global Temperature Trend Moni
 - 1.2.1 : favicon hexagonal SVG (courbe GIEC + seuil 1,5 °C).
 - 1.2.2 : mise à jour mensuelle le 5 seulement (au lieu des 4, 8, 15).
 - 1.2.3 : survol des points au style de l'application officielle (bandeau orange, titre, sous-titre, mois et valeur).
+- 1.2.4 : petites icônes SVG Tabler inline devant les libellés des onglets.

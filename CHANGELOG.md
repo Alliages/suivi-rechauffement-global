@@ -2,6 +2,10 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.2.4 — 2026-11-25
+
+- Icônes Tabler inline dans les onglets (graphique, FAQ, glossaire, code), couleur suivie du libellé (accent orange quand l'onglet est actif), sans nouvelle dépendance.
+
 ## 1.2.3 — 2026-11-24
 
 - Survol des points d'anomalie au style de l'application officielle : bandeau orange fondé sur la palette de la page, titre « Changement de température observé » (gras), sous-titre « Depuis l'époque préindustrielle (1850-1900) », puis mois et valeur.
