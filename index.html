@@ -21,13 +21,13 @@
   .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
   .brand img { width: 42px; height: 42px; flex: none; }
   .brand .logo { width: 48px; height: 48px; flex: none; background: #fff;
-                 clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+                 clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
                  display: grid; place-items: center; }
   .head-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
   h1 { font-size: 1.6rem; margin: 0 0 4px; }
   .topbar h1 { font-size: 1.3rem; margin: 0; color: #fff; }
   .sub { color: var(--muted); margin: 0; }
-  .topbar #updated { color: rgba(255, 255, 255, .85); }
+  .topbar #updated { color: rgba(255, 255, 255, .85); font-size: .8rem; }
   .lang { display: flex; gap: 6px; }
   .lang button { border: 1px solid var(--line); background: #fff; padding: 4px 10px;
                  cursor: pointer; font: inherit; border-radius: 6px; }
@@ -95,6 +95,7 @@
            padding-top: 12px; }
   footer .credit { margin: 0 0 6px; max-width: 900px; }
   footer .mention { display: block; }
+  .tabpanel a { color: var(--accent); }
   footer a { color: inherit; }
   .prelim { color: var(--muted); font-size: .8rem; font-weight: 400; }
   @media (max-width: 700px) {

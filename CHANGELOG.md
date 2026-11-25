@@ -2,6 +2,10 @@
 
 Versions : dernier chiffre pair = évolution, impair = correction ou mineur. 0.9 : l'outil fonctionne ; 1.0 : première version annoncée et diffusée.
 
+## 1.2.7 — 2026-11-25
+
+- Logo du bandeau : hexagone blanc aux bonnes proportions (angles latéraux à 6,7 %/93,3 %). Date « Données jusqu'à / mise à jour le » réduite. Liens des onglets en rouge foncé.
+
 ## 1.2.6 — 2026-11-25
 
 - Contour blanc de 3 px autour du logo du bandeau, épousant la forme hexagonale (fond blanc + clip-path, sans modifier le favicon).
