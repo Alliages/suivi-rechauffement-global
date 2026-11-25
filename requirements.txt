@@ -1,4 +1,4 @@
 # Versions épinglées : flux mensuel reproductible, sans surprise à la montée de version.
-numpy==2.2.6
+numpy==2.5.5
 pandas==2.2.3
 pytest==9.0.3
